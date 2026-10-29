@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk Kak Anggy 🕷️❤️</title>
+    <!-- Tailwind CSS untuk layout yang responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font tulisan tangan untuk nuansa Dunia Pensil -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* TEMA DUNIA PENSIL (PENCIL WORLD) & SPIDER-MAN */
+        body {
+            background-color: #f4f1ea; /* Warna kertas sketch */
+            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h100v100H0z" fill="none"/%3E%3Cpath d="M10 10h80v80H10z" stroke="%23e0dcd3" stroke-width="1" fill="none" stroke-dasharray="2 2"/%3E%3C/svg%3E');
+            font-family: 'Kalam', cursive;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #1a1a1a;
+        }
+
+        /* Efek Border Coretan Pensil */
+        .sketch-border {
+            border: 3px solid #111;
+            border-radius: 2px 255px 3px 25px / 255px 5px 225px 3px;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .sketch-border-red {
+            border: 3px solid #b91c1c; /* Merah Spiderman */
+            border-radius: 255px 5px 225px 3px / 2px 255px 3px 25px;
+            box-shadow: 4px 4px 0px rgba(185, 28, 28, 0.2);
+        }
+
+        /* Envelope Styling */
+        #envelope-container {
+            width: 90%;
+            max-width: 400px;
+            height: 250px;
+            background-color: #b91c1c;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #envelope-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, transparent 49%, #000 50%, transparent 51%);
+            background-size: 10px 10px;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .envelope-text {
+            font-family: 'Caveat', cursive;
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 2px 2px 0px #000;
+            z-index: 10;
+            transform: rotate(-3deg);
+        }
+
+        /* Kertas Surat */
+        .letter-paper {
+            background-color: #fffdf8;
+            background-image: repeating-linear-gradient(transparent, transparent 30px, #ccc 31px);
+            padding: 2rem 1.5rem;
+            line-height: 31px;
+            font-size: 1.25rem;
+            position: relative;
+            max-width: 500px;
+            width: 95%;
+            margin: 20px auto;
+        }
+
+        /* Animasi Kertas Naik */
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-up {
+            animation: slideUp 1s ease-out forwards;
+        }
+
+        /* Animasi Laba-laba Turun */
+        @keyframes spiderDrop {
+            0% { top: -100px; }
+            50% { top: 20px; }
+            100% { top: 10px; }
+        }
+        .spider {
+            position: fixed;
+            right: 10%;
+            top: -100px;
+            width: 40px;
+            z-index: 50;
+            animation: spiderDrop 3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+            animation-delay: 1s;
+        }
+        .spider-web-line {
+            position: absolute;
+            width: 2px;
+            background-color: #111;
+            top: -500px;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -1;
+        }
+
+        /* Kustom Input */
+        .sketch-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px dashed #111;
+            font-family: 'Caveat', cursive;
+            font-size: 1.5rem;
+            text-align: center;
+            outline: none;
+            width: 80%;
+            margin-bottom: 1rem;
+            color: #b91c1c;
+        }
+        .sketch-input:focus {
+            border-bottom: 2px solid #b91c1c;
+        }
+
+        /* Jaring Laba-laba Sudut */
+        .corner-web {
+            position: fixed;
+            width: 150px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .web-top-left { top: -10px; left: -10px; transform: rotate(0deg); }
+        .web-bottom-right { bottom: -10px; right: -10px; transform: rotate(180deg); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Musik Latar (HTML Friendly) -->
+    <!-- Catatan: Letakkan file 'bunga_kertas_merah_berduri.mp3' di folder yang sama dengan file HTML ini -->
+    <audio id="bg-music" loop>
+        <source src="bunga_kertas_merah_berduri.mp3" type="audio/mpeg">
+        <!-- Fallback jika lagu lokal tidak ada, pakai instrumen romantis online sebagai cadangan -->
+        <source src="https://cdn.pixabay.com/download/audio/2022/11/22/audio_febc403332.mp3?filename=romantic-piano-126297.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Hiasan Jaring Laba-laba Pensil -->
+    <svg class="corner-web web-top-left" viewBox="0 0 100 100" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round">
+        <path d="M0,20 Q20,20 40,0 M0,40 Q40,40 60,0 M0,60 Q60,60 80,0 M0,80 Q80,80 100,0" />
+        <path d="M20,0 L0,20 M40,0 L0,40 M60,0 L0,60 M80,0 L0,80" stroke-dasharray="4 4" />
+    </svg>
+    <svg class="corner-web web-bottom-right" viewBox="0 0 100 100" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round">
+        <path d="M0,20 Q20,20 40,0 M0,40 Q40,40 60,0 M0,60 Q60,60 80,0 M0,80 Q80,80 100,0" />
+        <path d="M20,0 L0,20 M40,0 L0,40 M60,0 L0,60 M80,0 L0,80" stroke-dasharray="4 4" />
+    </svg>
+
+    <!-- SCENE 1: AMPLOP SURAT -->
+    <div id="scene-envelope" class="flex flex-col items-center justify-center w-full">
+        <div id="envelope-container" class="sketch-border sketch-border-red hover:scale-105 transition-transform" onclick="openEnvelope()">
+            <!-- Tutup Amplop Segitiga -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 50%; background-color: #991b1b; clip-path: polygon(0 0, 50% 100%, 100% 0); border-bottom: 2px solid #000;"></div>
+            
+            <p class="envelope-text">untuk kak anggy <br><span class="text-sm text-black">(klik aku 🕷️)</span></p>
+        </div>
+    </div>
+
+    <!-- SCENE 2: PASSWORD PROMPT -->
+    <div id="scene-password" class="hidden flex-col items-center justify-center w-full max-w-md p-6 sketch-border bg-white text-center z-10 relative">
+        <h2 class="text-2xl mb-4 font-bold">Tunggu dulu! 🛑</h2>
+        <p class="mb-6 text-lg">the first meeting?</p>
+        
+        <input type="text" id="password-input" class="sketch-input" placeholder="contoh: 1st of January 2023" onkeypress="handleEnter(event)">
+        
+        <p id="error-msg" class="text-red-600 font-bold mb-4 hidden">ops, salah! coba ingat lagi 🕸️</p>
+        
+        <button onclick="checkPassword()" class="sketch-border sketch-border-red px-6 py-2 bg-red-600 text-white font-bold hover:bg-black hover:text-red-600 transition-colors">
+            Buka Surat
+        </button>
+    </div>
+
+    <!-- SCENE 3: ISI SURAT -->
+    <div id="scene-letter" class="hidden flex-col items-center w-full z-10 pb-10">
+        
+        <!-- Animasi Laba-laba -->
+        <div class="spider" id="spidey">
+            <div class="spider-web-line"></div>
+            <!-- SVG Laba-laba gaya coretan tangan -->
+            <svg viewBox="0 0 64 64" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="32" cy="32" r="10" fill="#b91c1c" />
+                <circle cx="32" cy="20" r="6" fill="#111" />
+                <!-- Kaki Kiri -->
+                <path d="M22,32 Q10,25 5,35 M22,36 Q10,40 5,45 M24,25 Q15,15 10,20 M26,40 Q15,50 15,60" />
+                <!-- Kaki Kanan -->
+                <path d="M42,32 Q54,25 59,35 M42,36 Q54,40 59,45 M40,25 Q49,15 54,20 M38,40 Q49,50 49,60" />
+                <!-- Mata Spider-man -->
+                <path d="M29,18 Q31,21 27,22 M35,18 Q33,21 37,22" stroke="#fff" stroke-width="2"/>
+            </svg>
+        </div>
+
+        <div class="letter-paper sketch-border">
+            <!-- Tanda Air (Watermark) Logo Laba-laba samar -->
+            <svg style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.03; width:80%; pointer-events:none;" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke="#000" stroke-width="2" fill="none"/>
+                <path d="M50,10 L50,90 M10,50 L90,50 M22,22 L78,78 M22,78 L78,22" stroke="#000" stroke-width="2"/>
+            </svg>
+
+            <p style="font-family: 'Caveat', cursive; font-size: 1.6rem; color: #111;">
+                haii kak anggy! 🧸👋🏻
+                <br><br>
+                cuma ndak bilang makasih banyaaak yaa karena kakak selaluuu ngertiin acu. makasih udah selalu ada buat bantuin, selalu bikin aku happy, mengutamakan comfort aku, dan yang paling penting... sabar nian bujuk aku kalau lagi ngambek 🥺
+                <br><br>
+                makasih juga udah milih buat stay di sini, walaupun keadaan saya lagi rapuh dan kacau balau.
+                <br><br>
+                maafkan aku yaa selama ini aku kayak kurang ngetreat kakak dengan baik, jarang ngasih apa-apa, atau jarang ngungkapin apa yang aku rasokan. padahal deep down, aku benar benar menghargai kakak sebagai orang yang aku sayang 💗 aku tau semua effort dan niat tulus kakak, cuma kadang aku tuh bingung sendiri gimana cara nunjukinnya. ujung-ujungnya malah gengsi dan salah tingkah sendiri 😭
+                <br><br>
+                aku sadar banget aku tuh anaknya complicated dan ribet, tapi kakak ga pernah nyerah trus pergi gitu aj. dari situ aku tau kalau kakak emang setulus itu sama aku. makasih yaa untuk semua hal-hal baik yang kakak buat dan kasih ke aku selama ini.
+                <br><br>
+                pokoknya kakak tidurnya harus nyenyak, makannya yang banyak, sehat-sehat terus, dan energinya harus selalu di charge sampai full!! soalnya kan kakak butuh banyak banget tenaga untuk bujuk aku yang ngambek tiap hari ini wkwkwk 🏃🏻‍♀️💨
+                <br><br>
+                <span class="text-red-700 font-bold">see you kak angyy! 🕸️❤️</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT -->
+    <script>
+        const sceneEnvelope = document.getElementById('scene-envelope');
+        const scenePassword = document.getElementById('scene-password');
+        const sceneLetter = document.getElementById('scene-letter');
+        const errorMsg = document.getElementById('error-msg');
+        const bgMusic = document.getElementById('bg-music');
+        const inputField = document.getElementById('password-input');
+
+        // Fungsi membuka amplop
+        function openEnvelope() {
+            sceneEnvelope.classList.add('hidden');
+            scenePassword.classList.remove('hidden');
+            scenePassword.classList.add('flex');
+            
+            // Memulai musik setelah interaksi pertama pengguna (kebijakan browser)
+            bgMusic.volume = 0.5;
+            bgMusic.play().catch(error => {
+                console.log("Autoplay musik diblokir. Musik akan diputar saat surat dibuka.", error);
+            });
+            
+            inputField.focus();
+        }
+
+        // Fungsi menangani penekanan tombol Enter pada input password
+        function handleEnter(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        }
+
+        // Fungsi memeriksa kata sandi
+        function checkPassword() {
+            const passwordValue = inputField.value.trim().toLowerCase();
+            
+            // Cek kesesuaian jawaban (dibuat toLowerCase agar tidak sensitif huruf besar/kecil)
+            if (passwordValue === "12th of august 2026") {
+                // Jawaban Benar!
+                scenePassword.classList.add('hidden');
+                scenePassword.classList.remove('flex');
+                
+                sceneLetter.classList.remove('hidden');
+                sceneLetter.classList.add('flex', 'animate-slide-up');
+                
+                // Pastikan musik menyala jika belum berhasil sebelumnya
+                bgMusic.play().catch(e => console.log(e));
+
+            } else {
+                // Jawaban Salah
+                errorMsg.classList.remove('hidden');
+                // Efek getar sederhana ketika salah
+                scenePassword.style.transform = "translateX(-10px)";
+                setTimeout(() => scenePassword.style.transform = "translateX(10px)", 100);
+                setTimeout(() => scenePassword.style.transform = "translateX(0)", 200);
+                
+                inputField.value = "";
+                inputField.focus();
+            }
+        }
+    </script>
+</body>
+</html>
