@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Invitation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Styles for Crayon & Fire Theme */
+        :root {
+            --fire-red: #d62828;
+            --fire-orange: #f77f00;
+            --fire-yellow: #fcbf49;
+            --paper: #fefae0;
+        }
+
+        body {
+            background-color: #ffe6e6; /* Soft pink background for envelope state */
+            overflow: hidden; /* Prevent scrolling during animation */
+            transition: background-color 1s ease;
+        }
+
+        body.open {
+            background-color: #220901; /* Dark background to make the fire pop */
+            overflow: auto;
+        }
+
+        .font-marker { font-family: 'Permanent Marker', cursive; }
+        .font-caveat { font-family: 'Caveat', cursive; }
+
+        /* Sketchy Crayon Border Effect */
+        .crayon-box {
+            background: var(--paper);
+            border: 5px solid var(--fire-red);
+            border-radius: 2% 95% 3% 90% / 95% 4% 92% 5%;
+            box-shadow: 8px 8px 0px rgba(214, 40, 40, 0.4);
+            position: relative;
+        }
+
+        /* SVG Noise Filter for Crayon Texture */
+        .texture-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0.4;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+            border-radius: inherit;
+        }
+
+        /* Fire Gradient Text */
+        .text-fire {
+            background: linear-gradient(to bottom, var(--fire-yellow), var(--fire-orange), var(--fire-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Crayon Buttons */
+        .btn-crayon {
+            background-color: var(--fire-yellow);
+            border: 3px solid var(--fire-red);
+            border-radius: 95% 4% 92% 5% / 4% 95% 6% 95%;
+            transition: all 0.2s ease;
+            color: var(--fire-red);
+        }
+        
+        .btn-crayon:hover {
+            background-color: var(--fire-orange);
+            color: white;
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .btn-crayon-2 {
+            background-color: var(--paper);
+            border: 3px solid var(--fire-orange);
+            border-radius: 4% 95% 6% 95% / 95% 4% 92% 5%;
+            transition: all 0.2s ease;
+            color: var(--fire-orange);
+        }
+
+        .btn-crayon-2:hover {
+            background-color: var(--fire-red);
+            color: white;
+            border-color: var(--fire-red);
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        /* Envelope CSS Art */
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background-color: #ff8fa3;
+            border-radius: 5px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s, opacity 0.8s ease-in-out;
+        }
+        
+        .envelope-wrapper:hover {
+            transform: translateY(-10px);
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid #ff4d6d;
+            border-bottom: 100px solid transparent;
+            z-index: 3;
+            transition: transform 0.5s ease-in-out;
+            transform-origin: top;
+        }
+
+        .envelope-front {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid transparent;
+            border-bottom: 100px solid #ff758f;
+            z-index: 2;
+        }
+
+        .envelope-sides {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #ffb3c1 0%, #ffb3c1 50%, #ff8fa3 50%, #ff8fa3 100%);
+            clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
+            z-index: 1;
+        }
+
+        .envelope-wrapper.opening .envelope-flap {
+            transform: rotateX(180deg);
+        }
+
+        .envelope-wrapper.opening {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.5);
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        #invite-screen {
+            display: none;
+            opacity: 0;
+        }
+
+        /* Fire Particles */
+        .particle {
+            position: absolute;
+            background: var(--fire-yellow);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            animation: rise 2s infinite ease-in;
+        }
+
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; background: var(--fire-yellow); }
+            50% { background: var(--fire-orange); }
+            100% { transform: translateY(-100px) scale(0); opacity: 0; background: var(--fire-red); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen relative w-full h-full">
+
+    <!-- Screen 1: Envelope -->
+    <div id="envelope-screen" class="flex flex-col items-center justify-center w-full h-full absolute z-50">
+        <div class="text-center mb-8">
+            <h1 class="font-marker text-4xl md:text-5xl text-pink-700 tracking-wider mb-2" style="text-shadow: 2px 2px 0px #fff;">
+                CINEMA<br>INVITATION
+            </h1>
+            <p class="font-caveat text-xl text-pink-600 animate-pulse mt-4">Klik amplop untuk membuka surat...</p>
+        </div>
+
+        <div class="envelope-wrapper" id="envelope">
+            <div class="envelope-flap"></div>
+            <div class="envelope-sides"></div>
+            <div class="envelope-front"></div>
+            <!-- Love Seal -->
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 bg-red-500 rounded-full w-12 h-12 flex items-center justify-center text-white text-xl shadow-md border-2 border-white">
+                ❤️
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 2: Main Invitation -->
+    <div id="invite-screen" class="w-full max-w-md p-4 relative z-40">
+        
+        <!-- Animated Fire Particles Container -->
+        <div id="particles" class="absolute inset-0 z-0 overflow-hidden pointer-events-none rounded-xl"></div>
+
+        <div class="crayon-box p-8 md:p-10 relative z-10 w-full text-center">
+            <div class="texture-overlay"></div>
+            
+            <div class="relative z-20">
+                <h2 class="font-marker text-5xl mb-4 text-fire">GJLS<br>BERAPI-API</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 mx-auto mb-6 rounded-full" style="border-radius: 5px 95% 2% 90% / 95% 5% 92% 5%;"></div>
+                
+                <p class="font-caveat text-2xl text-gray-800 leading-relaxed mb-4 text-left">
+                    Halo! ✨<br><br>
+                    Apakah kamu berkenan nonton film <strong class="font-marker text-red-600 text-xl tracking-wide">GJLS Berapi-Api</strong> bersamaku? 🔥
+                </p>
+                
+                <p class="font-caveat text-2xl text-gray-800 leading-relaxed mb-6 text-left">
+                    Biar makin hangat, pulangnya kita makan Sate Madura dan minum Wedang Uwuh bareng ya! 🍢🍹
+                </p>
+                
+                <!-- Interactive Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <button onclick="showModal()" class="btn-crayon font-marker text-xl py-3 px-6 shadow-md w-full sm:w-auto">
+                        Mau banget! ❤️
+                    </button>
+                    <button onclick="showModal()" class="btn-crayon-2 font-marker text-xl py-3 px-6 shadow-md w-full sm:w-auto">
+                        Boleh, ayo! ✨
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden YouTube Container -->
+    <div id="youtube-container" class="hidden"></div>
+
+    <!-- Custom Modal for Alerts (No native alerts used) -->
+    <div id="message-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-black bg-opacity-60 backdrop-blur-sm transition-opacity">
+        <div class="crayon-box p-8 max-w-sm w-11/12 text-center transform scale-95 transition-transform duration-300" id="modal-content">
+            <div class="texture-overlay"></div>
+            <div class="relative z-20">
+                <h3 class="font-marker text-3xl text-fire mb-4">Yay! 🎉</h3>
+                <p class="font-caveat text-2xl text-gray-800 mb-6">Asiikk! Sampai ketemu nanti ya! 🔥🍢</p>
+                <button onclick="closeModal()" class="btn-crayon font-marker text-lg py-2 px-6">
+                    Tutup 🤍
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const envelope = document.getElementById('envelope');
+            const envelopeScreen = document.getElementById('envelope-screen');
+            const inviteScreen = document.getElementById('invite-screen');
+            const youtubeContainer = document.getElementById('youtube-container');
+            const body = document.body;
+
+            envelope.addEventListener('click', () => {
+                // 1. Animate envelope opening
+                envelope.classList.add('opening');
+                
+                // 2. Play Audio via hidden Iframe
+                // Injecting iframe on click bypasses many autoplay restrictions
+                const iframe = document.createElement('iframe');
+                iframe.width = "0";
+                iframe.height = "0";
+                // URL includes autoplay, loop, and playlist (required for loop to work)
+                iframe.src = "https://www.youtube.com/embed/Ch3l_Q9PxpQ?autoplay=1&loop=1&playlist=Ch3l_Q9PxpQ";
+                iframe.frameBorder = "0";
+                iframe.allow = "autoplay";
+                youtubeContainer.appendChild(iframe);
+
+                // 3. Transition screens after envelope animation
+                setTimeout(() => {
+                    envelopeScreen.style.display = 'none';
+                    inviteScreen.style.display = 'block';
+                    inviteScreen.classList.add('fade-in');
+                    body.classList.add('open');
+                    
+                    // Start fire particles
+                    createFireParticles();
+                }, 800); 
+            });
+        });
+
+        // Fire Particles Generator
+        function createFireParticles() {
+            const container = document.getElementById('particles');
+            const box = document.querySelector('.crayon-box');
+            
+            setInterval(() => {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Randomize size, position, and duration
+                const size = Math.random() * 15 + 5; // 5px to 20px
+                const left = Math.random() * 100; // 0% to 100% of container width
+                const duration = Math.random() * 2 + 1.5; // 1.5s to 3.5s
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}%`;
+                particle.style.bottom = `-20px`; // Start slightly below
+                particle.style.animationDuration = `${duration}s`;
+                
+                container.appendChild(particle);
+                
+                // Remove particle after animation ends to keep DOM clean
+                setTimeout(() => {
+                    particle.remove();
+                }, duration * 1000);
+            }, 300); // create a new particle every 300ms
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('message-modal');
+        const modalContent = document.getElementById('modal-content');
+
+        function showModal() {
+            modal.classList.remove('hidden');
+            // Small delay to allow CSS block rendering before adding transform
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+</body>
+</html>
