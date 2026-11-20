@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPIDEY-DATE MISSION 🕷️🎟️</title>
+
+  <!-- Google Fonts: Bangers & Fredoka (judul komik ceria) + Plus Jakarta Sans (teks nyaman dibaca) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            spideyRed: '#E62429',
+            spideyBlue: '#1E40AF',
+            comicYellow: '#FACC15',
+            comicPaper: '#FFFFFF',
+            comicCream: '#FFFDF7',
+            comicInk: '#111827'
+          },
+          fontFamily: {
+            bangers: ['"Bangers"', 'cursive'],
+            fredoka: ['"Fredoka"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* =====================================================
+       TEMA KOMIK SPIDER-MAN POP-ART & ANIMASI KHUSUS
+    ===================================================== */
+    :root {
+      --spidey-red: #E62429;
+      --spidey-blue: #1E40AF;
+      --comic-yellow: #FACC15;
+      --comic-ink: #111827;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FFFDF7;
+      /* Tekstur titik halftone ala halaman komik cetak */
+      background-image:
+        radial-gradient(rgba(30, 64, 175, 0.11) 1.6px, transparent 1.6px),
+        radial-gradient(rgba(230, 36, 41, 0.08) 1.6px, transparent 1.6px);
+      background-size: 22px 22px;
+      background-position: 0 0, 11px 11px;
+      color: var(--comic-ink);
+    }
+
+    .font-comic {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+    }
+
+    .font-comic-display {
+      font-family: 'Bangers', 'Fredoka', cursive;
+      letter-spacing: 0.055em;
+    }
+
+    /* Panel komik garis tebal & bayangan keras */
+    .comic-card {
+      border: 3px solid var(--comic-ink);
+      box-shadow: 4px 4px 0px var(--comic-ink);
+      border-radius: 18px;
+    }
+
+    .comic-card-lg {
+      border: 3.5px solid var(--comic-ink);
+      box-shadow: 6px 6px 0px var(--comic-ink);
+      border-radius: 22px;
+    }
+
+    .comic-pill {
+      border: 2.5px solid var(--comic-ink);
+      box-shadow: 3px 3px 0px var(--comic-ink);
+    }
+
+    /* Tombol ala komik interaktif */
+    .comic-btn {
+      border: 3px solid var(--comic-ink);
+      box-shadow: 4px 4px 0px var(--comic-ink);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+      cursor: pointer;
+    }
+
+    .comic-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px var(--comic-ink);
+    }
+
+    .comic-btn:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0px var(--comic-ink);
+    }
+
+    /* Bayangan tebal judul ala cover komik */
+    .comic-title-shadow {
+      text-shadow:
+        2px 2px 0 #111827,
+        -1.5px -1.5px 0 #111827,
+        1.5px -1.5px 0 #111827,
+        -1.5px 1.5px 0 #111827,
+        4px 4px 0 #111827;
+    }
+
+    .comic-outline-sm {
+      text-shadow: 1.5px 1.5px 0 #111827;
+    }
+
+    /* Latar kartu tertutup berpola Spidey merah-biru */
+    .unscratched-tile-bg {
+      background-color: #E62429;
+      background-image:
+        repeating-linear-gradient(
+          -45deg,
+          rgba(30, 64, 175, 0.26) 0px,
+          rgba(30, 64, 175, 0.26) 10px,
+          transparent 10px,
+          transparent 22px
+        );
+    }
+
+    .locked-tile-bg {
+      background-color: #334155;
+      background-image:
+        repeating-linear-gradient(
+          -45deg,
+          rgba(15, 23, 42, 0.28) 0px,
+          rgba(15, 23, 42, 0.28) 10px,
+          transparent 10px,
+          transparent 22px
+        );
+    }
+
+    /* Kartu Jackpot Emas SSR Berkilau */
+    .jackpot-surface {
+      background: linear-gradient(135deg, #FEF9C3 0%, #FACC15 44%, #FEF08A 68%, #EAB308 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .jackpot-glow {
+      box-shadow: 0 0 0 3px #111827, 0 0 28px rgba(250, 204, 21, 0.9), 5px 5px 0px #111827;
+    }
+
+    .jackpot-shimmer::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -80%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.78) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(24deg);
+      animation: shimmerGlide 2.5s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shimmerGlide {
+      0% { left: -80%; }
+      55% { left: 145%; }
+      100% { left: 145%; }
+    }
+
+    /* Animasi ayunan kecil Chibi Spider-Man */
+    @keyframes webSwing {
+      0%, 100% { transform: rotate(-4.5deg); }
+      50% { transform: rotate(4.5deg); }
+    }
+
+    .animate-web-swing {
+      transform-origin: top center;
+      animation: webSwing 3.2s ease-in-out infinite;
+    }
+
+    /* Animasi wiggle saat kartu terkunci di-tap */
+    @keyframes wiggleLock {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      20% { transform: translateX(-6px) rotate(-2.5deg); }
+      40% { transform: translateX(6px) rotate(2.5deg); }
+      60% { transform: translateX(-4px) rotate(-1.5deg); }
+      80% { transform: translateX(4px) rotate(1.5deg); }
+    }
+
+    .animate-wiggle {
+      animation: wiggleLock 0.42s ease-in-out both;
+    }
+
+    /* Animasi muncul modal membal */
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.88) translateY(14px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .animate-pop-in {
+      animation: popIn 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes revealBounce {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .animate-reveal-bounce {
+      animation: revealBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Canvas lapisan foil gosok di dalam modal */
+    #scratchCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 20;
+      touch-action: none;
+      cursor: crosshair;
+      border-radius: 15px;
+      transition: opacity 0.45s ease;
+    }
+
+    /* Menyembunyikan frame video YouTube tanpa menghentikan audio yang sedang diputar */
+    .yt-wrapper-collapsed {
+      max-height: 0px !important;
+      opacity: 0 !important;
+      margin-top: 0px !important;
+      border-width: 0px !important;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col relative selection:bg-comicYellow selection:text-comicInk">
+
+  <!-- =====================================================
+       DEKORASI JARING LABA-LABA SVG DI SUDUT LAYAR
+  ===================================================== -->
+  <svg class="fixed top-0 left-0 w-28 h-28 sm:w-44 sm:h-44 pointer-events-none z-0 opacity-20 text-spideyBlue" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+    <path d="M0 0 L120 0 M0 0 L110 46 M0 0 L86 86 M0 0 L46 110 M0 0 L0 120" stroke="currentColor" stroke-width="2.4" />
+    <path d="M26 0 Q22 14 14 22 Q6 26 0 26" stroke="currentColor" stroke-width="2" fill="none" />
+    <path d="M54 0 Q48 28 32 44 Q18 54 0 54" stroke="currentColor" stroke-width="2" fill="none" />
+    <path d="M84 0 Q74 44 54 64 Q34 80 0 84" stroke="currentColor" stroke-width="2" fill="none" />
+    <path d="M112 0 Q96 58 70 84 Q42 104 0 112" stroke="currentColor" stroke-width="2" fill="none" />
+  </svg>
+
+  <svg class="fixed top-0 right-0 w-28 h-28 sm:w-44 sm:h-44 pointer-events-none z-0 opacity-20 text-spideyRed transform scale-x-[-1]" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+    <path d="M0 0 L120 0 M0 0 L110 46 M0 0 L86 86 M0 0 L46 110 M0 0 L0 120" stroke="currentColor" stroke-width="2.4" />
+    <path d="M26 0 Q22 14 14 22 Q6 26 0 26" stroke="currentColor" stroke-width="2" fill="none" />
+    <path d="M54 0 Q48 28 32 44 Q18 54 0 54" stroke="currentColor" stroke-width="2" fill="none" />
+    <path d="M84 0 Q74 44 54 64 Q34 80 0 84" stroke="currentColor" stroke-width="2" fill="none" />
+    <path d="M112 0 Q96 58 70 84 Q42 104 0 112" stroke="currentColor" stroke-width="2" fill="none" />
+  </svg>
+
+  <!-- Canvas Fullscreen untuk Efek Konfeti -->
+  <canvas id="confettiCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-50"></canvas>
+
+  <!-- =====================================================
+       HEADER UTAMA: PROGRESS BADGE, TOMBOL ATURAN & HERO BANNER
+  ===================================================== -->
+  <header class="relative z-10 w-full max-w-5xl mx-auto px-4 pt-4 pb-2">
+    <!-- Bar Atas: Progress Badge + Tombol Buka Aturan Main -->
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+      <!-- Progress Badge -->
+      <div class="comic-pill bg-comicPaper rounded-full px-3.5 py-1.5 text-xs sm:text-sm font-extrabold text-spideyBlue flex items-center gap-1.5">
+        <span>🎟️</span>
+        <span id="progressBadgeText">0 / 12 Misi Terbuka</span>
+      </div>
+
+      <!-- Tombol Buka Ulang Popup Info -->
+      <button
+        id="openRulesBtn"
+        type="button"
+        class="comic-btn bg-spideyBlue hover:bg-blue-800 text-white rounded-full px-3.5 py-1.5 text-xs sm:text-sm font-extrabold flex items-center gap-1.5"
+        aria-label="Buka Aturan Main"
+      >
+        <span>❓ Aturan Main</span>
+      </button>
+    </div>
+
+    <!-- Banner Judul Utama Spider-Man -->
+    <div class="comic-card-lg bg-spideyRed text-white px-4 py-5 sm:px-6 sm:py-6 relative overflow-hidden text-center">
+      <!-- Aksen garis diagonal komik halus -->
+      <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: repeating-linear-gradient(-45deg, #111827 0px, #111827 4px, transparent 4px, transparent 16px);"></div>
+
+      <div class="relative z-10 flex flex-col items-center">
+        <!-- Ilustrasi Chibi Spider-Man Mask SVG bergelantungan di jaring -->
+        <div class="animate-web-swing mb-2 flex flex-col items-center">
+          <div class="w-1 h-4 bg-white border-x border-comicInk -mt-6"></div>
+          <svg class="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[3px_3px_0px_#111827]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ilustrasi Chibi Spider-Man">
+            <!-- Kepala Chibi -->
+            <ellipse cx="50" cy="52" rx="38" ry="35" fill="#E62429" stroke="#111827" stroke-width="4.5" />
+            <!-- Garis Jaring Wajah -->
+            <path d="M50 17 V87 M13 52 H87 M22 28 L78 76 M78 28 L22 76" stroke="#111827" stroke-width="1.8" opacity="0.55" />
+            <ellipse cx="50" cy="52" rx="22" ry="20" stroke="#111827" stroke-width="1.6" fill="none" opacity="0.45" />
+            <ellipse cx="50" cy="52" rx="10" ry="9" stroke="#111827" stroke-width="1.4" fill="none" opacity="0.45" />
+            <!-- Mata Chibi Kiri -->
+            <path d="M22 48 C25 35, 41 36, 46 50 C42 60, 26 61, 22 48 Z" fill="#FFFFFF" stroke="#111827" stroke-width="4" stroke-linejoin="round" />
+            <!-- Mata Chibi Kanan -->
+            <path d="M78 48 C75 35, 59 36, 54 50 C58 60, 74 61, 78 48 Z" fill="#FFFFFF" stroke="#111827" stroke-width="4" stroke-linejoin="round" />
+            <!-- Kilau lucu di mata -->
+            <circle cx="31" cy="46" r="2.7" fill="#FACC15" />
+            <circle cx="69" cy="46" r="2.7" fill="#FACC15" />
+            <!-- Pipi merona imut -->
+            <ellipse cx="26" cy="64" rx="4.8" ry="2.6" fill="#FDA4AF" />
+            <ellipse cx="74" cy="64" rx="4.8" ry="2.6" fill="#FDA4AF" />
+          </svg>
+        </div>
+
+        <h1 class="font-comic-display text-4xl sm:text-5xl md:text-6xl text-comicYellow comic-title-shadow leading-none">
+          SPIDEY-DATE MISSION 🕷️🎟️
+        </h1>
+
+        <p class="mt-2.5 text-xs sm:text-sm md:text-base font-bold bg-spideyBlue text-white inline-block px-4 py-1.5 rounded-full border-2 border-comicInk shadow-[3px_3px_0px_#111827]">
+          Anti-Bingung Club • Biar Spidey-Sense yang Nentuin Jalan Kita!
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================
+       YOUTUBE BACKSOUND BAR (KOMPAK & BISA DI-MINIMIZE)
+  ===================================================== -->
+  <section class="relative z-10 w-full max-w-5xl mx-auto px-4 mt-2.5">
+    <div class="comic-card bg-comicPaper p-3 sm:p-3.5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="shrink-0 w-8 h-8 rounded-full bg-comicYellow border-2 border-comicInk flex items-center justify-center text-base shadow-[2px_2px_0_#111827]">
+            🎵
+          </span>
+          <p class="text-xs sm:text-sm font-extrabold text-comicInk leading-snug">
+            🎵 Backsound: <span class="text-spideyRed">(Klik Play biar makin seru!)</span>
+          </p>
+        </div>
+
+        <button
+          id="toggleYtBtn"
+          type="button"
+          class="comic-btn self-end sm:self-auto shrink-0 bg-comicYellow hover:bg-yellow-300 text-comicInk text-xs font-extrabold px-3 py-1.5 rounded-xl"
+        >
+          Sembunyikan Video 🔼
+        </button>
+      </div>
+
+      <!-- Iframe tetap terpasang di DOM saat di-minimize supaya lagu tidak berhenti -->
+      <div id="ytPlayerWrapper" class="mt-2.5 overflow-hidden rounded-xl border-2 border-comicInk bg-black transition-all duration-300 max-h-[110px] opacity-100">
+        <iframe
+          id="ytIframe"
+          class="w-full h-[86px] sm:h-[94px] block"
+          src=""
+          title="YouTube Backsound"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       COOLDOWN BANNER (LIMIT 72 JAM / SIAP GOSOK / SELESAI)
+  ===================================================== -->
+  <section class="relative z-10 w-full max-w-5xl mx-auto px-4 mt-3.5 mb-4">
+    <div id="cooldownBanner" class="comic-card p-3.5 sm:p-4 text-center transition-colors">
+      <!-- Diisi dinamis oleh JavaScript -->
+    </div>
+  </section>
+
+  <!-- =====================================================
+       GRID 12 KARTU GOSOK RESPONSIF (2 / 3 / 4 KOLOM)
+  ===================================================== -->
+  <main class="relative z-10 w-full max-w-5xl mx-auto px-4 pb-10 flex-1">
+    <div id="cardsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
+      <!-- 12 Kartu di-render lewat JavaScript -->
+    </div>
+  </main>
+
+  <!-- =====================================================
+       FOOTER + TRIGGER RAHASIA PANEL TESTING (TAP 🕷️ 5X DALAM 3 DETIK)
+  ===================================================== -->
+  <footer class="relative z-10 w-full text-center py-6 px-4 mt-auto">
+    <div class="inline-flex items-center gap-1 bg-comicPaper comic-pill rounded-full px-4 py-2 text-xs sm:text-sm font-bold text-comicInk">
+      <span>Dibuat khusus dengan kekuatan jaring laba-laba</span>
+      <button
+        id="secretSpiderBtn"
+        type="button"
+        class="inline-flex items-center justify-center px-1 py-0.5 text-base hover:scale-125 active:scale-95 transition-transform cursor-pointer focus:outline-none select-none"
+        aria-label="Ikon laba-laba"
+      >🕷️</button>
+    </div>
+  </footer>
+
+  <!-- =====================================================
+       MODAL 1: WELCOME POPUP (SAPAAN "HALOO KAK ANGGY!")
+  ===================================================== -->
+  <div id="welcomeModal" class="fixed inset-0 z-40 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-[2px]">
+    <div class="animate-pop-in w-full max-w-md comic-card-lg bg-comicPaper p-5 sm:p-6 relative max-h-[92vh] overflow-y-auto">
+      <!-- Dekorasi Stiker Komik -->
+      <div class="absolute -top-3 -right-2 bg-comicYellow comic-pill rounded-xl px-3 py-0.5 font-comic-display text-lg text-comicInk rotate-6">
+        THWIP! 🕸️
+      </div>
+
+      <!-- Ikon Topeng Chibi Spider-Man -->
+      <div class="flex justify-center mb-2">
+        <div class="w-14 h-14 rounded-full bg-spideyRed border-[3px] border-comicInk shadow-[3px_3px_0_#111827] flex items-center justify-center text-3xl">
+          🕷️
+        </div>
+      </div>
+
+      <h2 class="font-comic text-2xl sm:text-3xl text-center text-spideyRed leading-tight">
+        Haloo Kak Anggy! 🕸️✨
+      </h2>
+
+      <!-- Paragraf Pembuka -->
+      <div class="mt-3.5 bg-blue-50 border-2 border-comicInk rounded-2xl p-3.5 text-sm leading-relaxed text-comicInk font-medium">
+        Katanya tiap mau pergi suka bingung mau ke mana dan kehabisan ide, padahal soal traktir-mentraktir selalu gercep nomor satu! Nah, biar kamu nggak pusing mikirin destinasi lagi, aku udah siapin <strong class="font-extrabold text-spideyBlue">12 Kartu Misi Kencan</strong> khusus buat kita.
+      </div>
+
+      <!-- Daftar Aturan Main -->
+      <div class="mt-3.5 bg-yellow-50 border-2 border-dashed border-comicInk rounded-2xl p-3.5 text-xs sm:text-sm text-comicInk">
+        <p class="font-extrabold text-spideyRed mb-2">Aturan mainnya simpel banget:</p>
+        <ol class="list-decimal list-outside pl-4 space-y-1.5 font-medium leading-relaxed">
+          <li>Pilih 1 kartu yang bikin <em>Spidey-Sense</em> kamu bergetar, lalu gosok layarnya pakai jari.</li>
+          <li>Biar seru dan awet, kamu cuma bisa gosok <strong class="font-extrabold">1 kartu setiap 3 hari sekali</strong>.</li>
+          <li>Kalau kartu udah kebuka, klik <strong class="font-extrabold">Simpan Bukti Kupon</strong> buat jadi "bukti sah" pas nagih jadwal ke aku nanti!</li>
+          <li>Psst... ada <strong class="font-extrabold text-spideyRed">1 Kartu JACKPOT</strong> tersembunyi di sini. Semoga hoki ya!</li>
+        </ol>
+      </div>
+
+      <button
+        id="welcomeCtaBtn"
+        type="button"
+        class="mt-5 w-full comic-btn bg-spideyRed hover:bg-red-600 text-white font-comic text-xl sm:text-2xl py-3 rounded-2xl"
+      >
+        Siap Jalankan Misi! 🕷️
+      </button>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL 2: SCRATCH CARD & DETAIL KUPON INTERAKTIF
+  ===================================================== -->
+  <div id="scratchModal" class="fixed inset-0 z-40 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
+    <div class="animate-pop-in w-full max-w-md comic-card-lg bg-comicPaper p-4 sm:p-6 relative max-h-[94vh] overflow-y-auto">
+      <!-- Tombol Tutup -->
+      <button
+        id="closeScratchModalBtn"
+        type="button"
+        class="absolute top-3 right-3 z-30 comic-btn bg-white hover:bg-gray-100 text-comicInk w-9 h-9 rounded-full font-extrabold text-sm flex items-center justify-center"
+        aria-label="Tutup modal kartu"
+      >✕</button>
+
+      <!-- Header Kecil Modal -->
+      <div class="text-center mb-3 pr-7 pl-7">
+        <span id="modalSlotPill" class="inline-block bg-spideyBlue text-white comic-pill rounded-full px-3 py-0.5 text-xs font-extrabold">
+          KARTU #1
+        </span>
+        <p id="modalInstructionText" class="mt-1.5 text-xs sm:text-sm font-bold text-gray-600">
+          Gosok lapisan foil di bawah pakai jari sampai terbuka! 🕸️
+        </p>
+      </div>
+
+      <!-- Area Kartu + Canvas Foil Gosok -->
+      <div
+        id="scratchStage"
+        class="relative w-full min-h-[295px] sm:min-h-[325px] rounded-[18px] border-[3px] border-comicInk shadow-[4px_4px_0_#111827] overflow-hidden select-none"
+      >
+        <!-- Isi Kartu di Bawah Foil -->
+        <div
+          id="revealedCardFace"
+          class="w-full h-full min-h-[295px] sm:min-h-[325px] p-5 flex flex-col items-center justify-center text-center bg-comicPaper"
+        >
+          <span id="modalCardLabel" class="inline-block px-3.5 py-1 rounded-full border-2 border-comicInk bg-comicYellow text-comicInk text-xs font-extrabold uppercase tracking-wider mb-2.5 shadow-[2px_2px_0_#111827]">
+            Label Misi
+          </span>
+
+          <div id="modalCardEmoji" class="text-6xl sm:text-7xl my-1 drop-shadow-[3px_3px_0_rgba(17,24,39,0.18)]">
+            🎬
+          </div>
+
+          <h3 id="modalCardTitle" class="font-comic text-2xl sm:text-3xl text-spideyBlue leading-tight mt-1">
+            Judul Misi
+          </h3>
+
+          <p id="modalCardDesc" class="mt-2.5 text-xs sm:text-sm font-semibold text-gray-800 bg-white/95 border-2 border-comicInk rounded-2xl p-3 leading-relaxed">
+            Deskripsi misi di sini.
+          </p>
+
+          <p id="modalOpenedAtText" class="hidden mt-2.5 text-[11px] font-bold text-gray-600">
+            Dibuka pada: -
+          </p>
+        </div>
+
+        <!-- HTML5 Canvas Lapisan Foil Gosok (hanya aktif jika kartu belum terbuka) -->
+        <canvas id="scratchCanvas" class="hidden"></canvas>
+      </div>
+
+      <!-- Indikator Progress Gosok -->
+      <div id="scratchHintBar" class="mt-3 flex items-center justify-between text-xs font-bold text-gray-600 px-1">
+        <span>👆 Gosok terus pakai jari / mouse</span>
+        <span id="scratchPercentText" class="text-spideyRed font-extrabold">0%</span>
+      </div>
+
+      <!-- Tombol Aksi Setelah Kartu Terbuka -->
+      <div id="revealedActions" class="hidden mt-4 flex flex-col gap-2.5">
+        <button
+          id="saveProofBtn"
+          type="button"
+          class="w-full comic-btn bg-comicYellow hover:bg-yellow-300 text-comicInk font-extrabold text-sm sm:text-base py-3 px-4 rounded-xl flex items-center justify-center gap-2"
+        >
+          <span>📸 Simpan Bukti Kupon</span>
+        </button>
+
+        <a
+          id="waClaimLink"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full comic-btn bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm sm:text-base py-3 px-4 rounded-xl flex items-center justify-center gap-2"
+        >
+          <span>💬 Kirim &amp; Tagih ke WA</span>
+        </a>
+
+        <button
+          id="backToGridBtn"
+          type="button"
+          class="mt-1 text-xs sm:text-sm font-bold text-gray-600 hover:text-comicInk underline cursor-pointer py-1"
+        >
+          Kembali ke Papan Kartu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL 3: PREVIEW BUKTI KUPON PNG (RAMAH MOBILE / iOS)
+  ===================================================== -->
+  <div id="proofPreviewModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-[2px]">
+    <div class="animate-pop-in w-full max-w-sm comic-card-lg bg-comicPaper p-4 sm:p-5 relative max-h-[94vh] overflow-y-auto text-center">
+      <button
+        id="closeProofModalBtn"
+        type="button"
+        class="absolute top-3 right-3 comic-btn bg-white text-comicInk w-8 h-8 rounded-full font-extrabold text-sm flex items-center justify-center"
+        aria-label="Tutup preview kupon"
+      >✕</button>
+
+      <h3 class="font-comic text-xl sm:text-2xl text-spideyBlue pr-7 pl-7">
+        Bukti Kupon Sah! 🎟️✨
+      </h3>
+
+      <div class="mt-3 rounded-2xl overflow-hidden border-[3px] border-comicInk shadow-[4px_4px_0_#111827] bg-white">
+        <img id="proofPreviewImg" src="" alt="Bukti Sah Spidey-Date Coupon" class="w-full h-auto block" />
+      </div>
+
+      <p class="mt-3 text-xs font-semibold text-gray-700 bg-yellow-50 border-2 border-dashed border-comicInk rounded-xl p-2.5 leading-relaxed">
+        💡 Tekan lama gambar untuk simpan ke galeri jika unduhan tidak otomatis.
+      </p>
+
+      <div class="mt-3 flex gap-2">
+        <a
+          id="manualDownloadLink"
+          href="#"
+          download="spidey-coupon.png"
+          class="flex-1 comic-btn bg-spideyRed hover:bg-red-600 text-white font-extrabold text-xs sm:text-sm py-2.5 px-3 rounded-xl text-center"
+        >
+          ⬇️ Download Lagi
+        </a>
+        <button
+          id="doneProofModalBtn"
+          type="button"
+          class="comic-btn bg-comicYellow hover:bg-yellow-300 text-comicInk font-extrabold text-xs sm:text-sm py-2.5 px-4 rounded-xl"
+        >
+          Selesai
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL 4: PANEL RAHASIA TESTING / ADMIN (TAP 🕷️ 5X)
+  ===================================================== -->
+  <div id="adminModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-[2px]">
+    <div class="animate-pop-in w-full max-w-sm comic-card-lg bg-comicPaper p-5 text-center relative">
+      <div class="text-3xl mb-1">🛠️🕷️</div>
+      <h3 class="font-comic text-2xl text-spideyBlue">
+        Panel Rahasia Testing
+      </h3>
+      <p class="text-xs sm:text-sm font-medium text-gray-600 mt-1">
+        Buat ngetes web sebelum link GitHub Pages dikirim ke Kak Anggy!
+      </p>
+
+      <!-- Kotak Info Intip Posisi Jackpot -->
+      <div id="jackpotPeekBox" class="hidden mt-3 bg-comicYellow border-2 border-comicInk rounded-xl p-2.5 text-xs sm:text-sm font-extrabold text-comicInk">
+      </div>
+
+      <div class="mt-4 flex flex-col gap-2.5">
+        <button
+          id="adminClearCooldownBtn"
+          type="button"
+          class="comic-btn bg-comicYellow hover:bg-yellow-300 text-comicInk font-extrabold text-xs sm:text-sm py-2.5 px-3 rounded-xl"
+        >
+          ⚡ Hapus Cooldown 3 Hari
+        </button>
+
+        <button
+          id="adminResetAllBtn"
+          type="button"
+          class="comic-btn bg-spideyRed hover:bg-red-600 text-white font-extrabold text-xs sm:text-sm py-2.5 px-3 rounded-xl"
+        >
+          🔄 Reset &amp; Acak Ulang Semua Kartu
+        </button>
+
+        <button
+          id="adminPeekJackpotBtn"
+          type="button"
+          class="comic-btn bg-spideyBlue hover:bg-blue-800 text-white font-extrabold text-xs sm:text-sm py-2.5 px-3 rounded-xl"
+        >
+          👑 Intip Posisi Kartu Jackpot
+        </button>
+
+        <button
+          id="adminCloseBtn"
+          type="button"
+          class="comic-btn bg-white hover:bg-gray-100 text-comicInk font-extrabold text-xs sm:text-sm py-2 px-3 rounded-xl mt-1"
+        >
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       TOAST NOTIFIKASI MELAYANG
+  ===================================================== -->
+  <div id="toastContainer" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md flex flex-col items-center gap-2 pointer-events-none"></div>
+
+  <!-- =====================================================
+       JAVASCRIPT UTAMA
+  ===================================================== -->
+  <script>
+    /* =====================================================
+       KONFIGURASI UTAMA (EDIT NOMOR WA DI SINI SEBELUM UPLOAD)
+    ===================================================== */
+    const CONFIG = {
+      // Ganti '628xxxxxxxxxx' dengan nomor WhatsApp kamu (format internasional tanpa '+' dan tanpa '0' di depan).
+      // Contoh: '6281234567890'
+      // Catatan: Jika belum diganti, tombol WA tetap berjalan dan akan membuka pilihan kontak chat.
+      WHATSAPP_NUMBER: '628xxxxxxxxxx',
+
+      // Durasi cooldown antar gosokan kartu (72 jam = 3 hari)
+      COOLDOWN_HOURS: 72,
+
+      // ID Video YouTube untuk backsound (https://youtu.be/fEmWHgM1784)
+      YOUTUBE_VIDEO_ID: 'fEmWHgM1784'
+    };
+
+    const STORAGE_KEY = 'spidey_date_mission_state_v3';
+    const SCRATCH_THRESHOLD = 0.49; // ~49% area foil tergosok -> otomatis terbuka penuh
+
+    /* =====================================================
+       DATA 12 KARTU MISI KENCAN (11 MISI + 1 JACKPOT)
+    ===================================================== */
+    const CARDS_DATA = [
+      {
+        id: 'movie-date',
+        emoji: '🎬',
+        title: 'Movie Date',
+        label: 'Misi Santai',
+        desc: 'Saatnya duduk manis di bioskop! Pilih film yang lagi bikin penasaran.',
+        tint: 'bg-red-50',
+        isJackpot: false
+      },
+      {
+        id: 'clay-date',
+        emoji: '🏺',
+        title: 'Clay Date',
+        label: 'Misi Kreatif',
+        desc: 'Waktunya adu kreativitas bikin bentuk lucu dari clay! Mau hasilnya estetik atau agak absurd, yang penting seru dan hasilnya wajib disimpan.',
+        tint: 'bg-orange-50',
+        isJackpot: false
+      },
+      {
+        id: 'painting-date',
+        emoji: '🎨',
+        title: 'Painting Date',
+        label: 'Misi Estetik',
+        desc: 'Kita jadi pelukis dadakan yuk! Bebas mau lukis apapun. No judging skill gambar ya!',
+        tint: 'bg-purple-50',
+        isJackpot: false
+      },
+      {
+        id: 'beach-date',
+        emoji: '🏖️',
+        title: 'Beach Date',
+        label: 'Vitamin Sea',
+        desc: 'Waktunya cari angin pantai! Entah main air, jalan santai di pinggir pasir, atau duduk-duduk aja nungguin sunset sambil ngobrol dan ngejek anggy.',
+        tint: 'bg-sky-50',
+        isJackpot: false
+      },
+      {
+        id: 'waterfall-date',
+        emoji: '🌊',
+        title: 'Waterfall Date',
+        label: 'Misi Alam',
+        desc: 'Healing tipis-tipis ke air terjun! Siapin baju ganti, kita nikmatin udara segar, suara air, dan ambil foto keren di alam.',
+        tint: 'bg-cyan-50',
+        isJackpot: false
+      },
+      {
+        id: 'hiking-to-kaba',
+        emoji: '⛰️',
+        title: 'Hiking to Kaba',
+        label: 'Misi Level Tinggi',
+        desc: 'Misi spesial: muncak bareng ke Bukit Kaba! Siapin fisik, jaket, dan camilan. Janji nggak boleh ngeluh duluan sebelum sampai puncak ya!',
+        tint: 'bg-emerald-50',
+        isJackpot: false
+      },
+      {
+        id: 'makan-cantik-cafe',
+        emoji: '🍰',
+        title: 'Makan Cantik di Cafe',
+        label: 'Misi Kuliner',
+        desc: 'Hari ini kita dandan rapi dan cari cafe yang lucu! Fokus utamanya: makan enak, minum yang segar, dan wajib quality time.',
+        tint: 'bg-pink-50',
+        isJackpot: false
+      },
+      {
+        id: 'belajar-coffeeshop',
+        emoji: '💻',
+        title: 'Belajar Santai di Coffeeshop',
+        label: 'Misi Produktif',
+        desc: 'Mode produktif tapi tetap bareng! Kita nongkrong di coffeeshop nyaman, kerjain aktivitas masing-masing ditemenin kopi dan obrolan ringan.',
+        tint: 'bg-amber-50',
+        isJackpot: false
+      },
+      {
+        id: 'main-ke-rumah',
+        emoji: '🏡',
+        title: 'Main ke Rumah Kamu',
+        label: 'Misi Homey',
+        desc: 'Nggak perlu jauh-jauh, misi kali ini aku berkunjung ke rumah kamu! Ngobrol santai, istirahat, dan nemenin kamu di zona paling nyaman.',
+        tint: 'bg-indigo-50',
+        isJackpot: false
+      },
+      {
+        id: 'hunting-buah',
+        emoji: '🍓',
+        title: 'Hunting Buah',
+        label: 'Misi Segar',
+        desc: 'Misi hidup sehat! Kita keliling cari buah-buahan segar atau buah yang lagi musim.',
+        tint: 'bg-rose-50',
+        isJackpot: false
+      },
+      {
+        id: 'hunting-jajan',
+        emoji: '🍢',
+        title: 'Hunting Jajan',
+        label: 'Misi Lapar',
+        desc: 'Kosongin perut dari sekarang! Kita muter-muter berburu jajanan yang kelihatan menggoda. Aturannya: lihat yang menarik, langsung beli!',
+        tint: 'bg-yellow-50',
+        isJackpot: false
+      },
+      {
+        id: 'jackpot-wildcard',
+        emoji: '👑',
+        title: 'JACKPOT: 1 Permintaan Bebas (Wildcard)',
+        label: '★ HADIAH UTAMA ★',
+        desc: 'DING DING DING! Spidey-Sense kamu lagi gacor maksimal! Kamu dapat 1 Permintaan Bebas: boleh minta apa saja ke aku (dengan syarat & ketentuan wajar ya 😉).',
+        tint: 'jackpot-surface',
+        isJackpot: true
+      }
+    ];
+
+    /* =====================================================
+       STATE APLIKASI & PENYIMPANAN LOCALSTORAGE
+    ===================================================== */
+    let appState = {
+      order: [],             // Urutan ID kartu acak yang tersimpan permanen
+      openedCards: {},       // Map { [cardId]: timestampMs }
+      lastScratchAt: null,   // Timestamp (ms) terakhir kali kartu berhasil dibuka
+      welcomeSeen: false     // Agar popup sapaan muncul otomatis pada kunjungan pertama
+    };
+
+    // State modal gosok aktif
+    let activeCard = null;
+    let activeSlotNumber = 1;
+    let modalIsScratched = false;
+    let isPointerDown = false;
+    let lastPoint = null;
+    let scratchMoveTicks = 0;
+    let countdownTimerId = null;
+    let lastKnownCooldownLocked = null;
+
+    // Referensi Elemen DOM
+    const progressBadgeText = document.getElementById('progressBadgeText');
+    const openRulesBtn = document.getElementById('openRulesBtn');
+    const ytIframe = document.getElementById('ytIframe');
+    const ytPlayerWrapper = document.getElementById('ytPlayerWrapper');
+    const toggleYtBtn = document.getElementById('toggleYtBtn');
+    const cooldownBanner = document.getElementById('cooldownBanner');
+    const cardsGrid = document.getElementById('cardsGrid');
+
+    const welcomeModal = document.getElementById('welcomeModal');
+    const welcomeCtaBtn = document.getElementById('welcomeCtaBtn');
+
+    const scratchModal = document.getElementById('scratchModal');
+    const closeScratchModalBtn = document.getElementById('closeScratchModalBtn');
+    const modalSlotPill = document.getElementById('modalSlotPill');
+    const modalInstructionText = document.getElementById('modalInstructionText');
+    const scratchStage = document.getElementById('scratchStage');
+    const revealedCardFace = document.getElementById('revealedCardFace');
+    const modalCardLabel = document.getElementById('modalCardLabel');
+    const modalCardEmoji = document.getElementById('modalCardEmoji');
+    const modalCardTitle = document.getElementById('modalCardTitle');
+    const modalCardDesc = document.getElementById('modalCardDesc');
+    const modalOpenedAtText = document.getElementById('modalOpenedAtText');
+    const scratchCanvas = document.getElementById('scratchCanvas');
+    const scratchHintBar = document.getElementById('scratchHintBar');
+    const scratchPercentText = document.getElementById('scratchPercentText');
+    const revealedActions = document.getElementById('revealedActions');
+    const saveProofBtn = document.getElementById('saveProofBtn');
+    const waClaimLink = document.getElementById('waClaimLink');
+    const backToGridBtn = document.getElementById('backToGridBtn');
+
+    const proofPreviewModal = document.getElementById('proofPreviewModal');
+    const proofPreviewImg = document.getElementById('proofPreviewImg');
+    const manualDownloadLink = document.getElementById('manualDownloadLink');
+    const closeProofModalBtn = document.getElementById('closeProofModalBtn');
+    const doneProofModalBtn = document.getElementById('doneProofModalBtn');
+
+    const secretSpiderBtn = document.getElementById('secretSpiderBtn');
+    const adminModal = document.getElementById('adminModal');
+    const jackpotPeekBox = document.getElementById('jackpotPeekBox');
+    const adminClearCooldownBtn = document.getElementById('adminClearCooldownBtn');
+    const adminResetAllBtn = document.getElementById('adminResetAllBtn');
+    const adminPeekJackpotBtn = document.getElementById('adminPeekJackpotBtn');
+    const adminCloseBtn = document.getElementById('adminCloseBtn');
+
+    const toastContainer = document.getElementById('toastContainer');
+
+    /* =====================================================
+       FUNGSI UTILITAS (ACAK, COOLDOWN, FORMAT TANGGAL)
+    ===================================================== */
+    function shuffleArray(list) {
+      const copy = [...list];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function getCooldownMs() {
+      return CONFIG.COOLDOWN_HOURS * 60 * 60 * 1000;
+    }
+
+    function getRemainingCooldownMs() {
+      if (!appState.lastScratchAt) return 0;
+      const elapsed = Date.now() - appState.lastScratchAt;
+      return Math.max(0, getCooldownMs() - elapsed);
+    }
+
+    function isCooldownActive() {
+      return getRemainingCooldownMs() > 0;
+    }
+
+    function getOpenedCount() {
+      return Object.keys(appState.openedCards).length;
+    }
+
+    function formatCountdownText(ms) {
+      const totalSec = Math.ceil(ms / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const minutes = Math.floor((totalSec % 3600) / 60);
+      const seconds = totalSec % 60;
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${days} Hari ${pad(hours)} Jam ${pad(minutes)} Menit ${pad(seconds)} Detik`;
+    }
+
+    function formatIndonesianDateTime(timestampMs) {
+      const d = new Date(timestampMs || Date.now());
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const day = d.getDate();
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      const hours = String(d.getHours()).padStart(2, '0');
+      const mins = String(d.getMinutes()).padStart(2, '0');
+      return `${day} ${month} ${year}, ${hours}:${mins} WIB`;
+    }
+
+    function slugify(str) {
+      return String(str)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') || 'misi';
+    }
+
+    // Helper aman menggambar persegi panjang sudut bulat di seluruh browser
+    function drawRoundedRectPath(ctx, x, y, w, h, r) {
+      const radius = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + w, y, x + w, y + h, radius);
+      ctx.arcTo(x + w, y + h, x, y + h, radius);
+      ctx.arcTo(x, y + h, x, y, radius);
+      ctx.arcTo(x, y, x + w, y, radius);
+      ctx.closePath();
+    }
+
+    /* =====================================================
+       LOAD & SAVE STATE KE LOCALSTORAGE
+    ===================================================== */
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.order) && parsed.order.length === CARDS_DATA.length) {
+            appState = {
+              order: parsed.order,
+              openedCards: parsed.openedCards && typeof parsed.openedCards === 'object' ? parsed.openedCards : {},
+              lastScratchAt: typeof parsed.lastScratchAt === 'number' ? parsed.lastScratchAt : null,
+              welcomeSeen: Boolean(parsed.welcomeSeen)
+            };
+            return;
+          }
+        }
+      } catch (err) {
+        // Fallback jika penyimpanan lokal dibatasi browser
+      }
+
+      appState = {
+        order: shuffleArray(CARDS_DATA.map((c) => c.id)),
+        openedCards: {},
+        lastScratchAt: null,
+        welcomeSeen: false
+      };
+      saveState();
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (err) {}
+    }
+
+    /* =====================================================
+       WEB AUDIO API: EFEK SUARA GOSOK & SELEBRASI (TANPA FILE EKSTERNAL)
+    ===================================================== */
+    let audioCtx = null;
+    let lastScratchSfxAt = 0;
+
+    function getAudioCtx() {
+      try {
+        if (!audioCtx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) audioCtx = new AudioCtx();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      } catch (err) {}
+      return audioCtx;
+    }
+
+    function playScratchSound() {
+      const now = performance.now();
+      if (now - lastScratchSfxAt < 85) return;
+      lastScratchSfxAt = now;
+
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+
+      try {
+        const len = Math.floor(ctx.sampleRate * 0.038);
+        const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+        const ch = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) {
+          ch[i] = (Math.random() * 2 - 1) * (1 - i / len);
+        }
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1850 + Math.random() * 750;
+        filter.Q.value = 2.0;
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.045, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.038);
+
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        src.start();
+      } catch (err) {}
+    }
+
+    function playRevealChime() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      try {
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          const t = ctx.currentTime + idx * 0.075;
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.001, t);
+          gain.gain.linearRampToValueAtTime(0.13, t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.3);
+        });
+      } catch (err) {}
+    }
+
+    function playJackpotFanfare() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      try {
+        const seq = [
+          { f: 523.25, t: 0.00, d: 0.14 },
+          { f: 659.25, t: 0.11, d: 0.14 },
+          { f: 783.99, t: 0.22, d: 0.15 },
+          { f: 1046.5, t: 0.34, d: 0.24 },
+          { f: 783.99, t: 0.54, d: 0.12 },
+          { f: 1046.5, t: 0.66, d: 0.55 },
+          { f: 1318.5, t: 0.66, d: 0.55 }
+        ];
+        seq.forEach((n) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          const start = ctx.currentTime + n.t;
+          osc.frequency.setValueAtTime(n.f, start);
+          gain.gain.setValueAtTime(0.001, start);
+          gain.gain.linearRampToValueAtTime(0.15, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + n.d);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + n.d + 0.05);
+        });
+      } catch (err) {}
+    }
+
+    function playLockedBoing() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(290, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(165, ctx.currentTime + 0.16);
+        gain.gain.setValueAtTime(0.09, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.2);
+      } catch (err) {}
+    }
+
+    /* =====================================================
+       TOAST NOTIFIKASI BERGAYA KOMIK
+    ===================================================== */
+    let toastTimeout = null;
+
+    function showToast(message, variant = 'yellow') {
+      toastContainer.innerHTML = '';
+      if (toastTimeout) clearTimeout(toastTimeout);
+
+      const el = document.createElement('div');
+      let colorClass = 'bg-comicYellow text-comicInk';
+      if (variant === 'red') colorClass = 'bg-spideyRed text-white';
+      if (variant === 'green') colorClass = 'bg-emerald-500 text-white';
+      if (variant === 'blue') colorClass = 'bg-spideyBlue text-white';
+
+      el.className = `comic-card ${colorClass} px-4 py-2.5 text-xs sm:text-sm font-extrabold text-center animate-pop-in`;
+      el.textContent = message;
+      toastContainer.appendChild(el);
+
+      toastTimeout = setTimeout(() => {
+        el.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(8px)';
+        setTimeout(() => {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 300);
+      }, 3800);
+    }
+
+    /* =====================================================
+       SETUP YOUTUBE BACKSOUND BAR
+    ===================================================== */
+    let isYtCollapsed = false;
+
+    function initYoutubePlayer() {
+      const vid = encodeURIComponent(CONFIG.YOUTUBE_VIDEO_ID);
+      ytIframe.src = `https://www.youtube.com/embed/${vid}?rel=0&loop=1&playlist=${vid}`;
+    }
+
+    toggleYtBtn.addEventListener('click', () => {
+      isYtCollapsed = !isYtCollapsed;
+      if (isYtCollapsed) {
+        ytPlayerWrapper.classList.add('yt-wrapper-collapsed');
+        toggleYtBtn.textContent = 'Tampilkan Video 🔽';
+      } else {
+        ytPlayerWrapper.classList.remove('yt-wrapper-collapsed');
+        toggleYtBtn.textContent = 'Sembunyikan Video 🔼';
+      }
+    });
+
+    /* =====================================================
+       UPDATE PROGRESS BADGE & COOLDOWN BANNER 72 JAM
+    ===================================================== */
+    function updateStatusUI() {
+      const openedCount = getOpenedCount();
+      const total = CARDS_DATA.length;
+      progressBadgeText.textContent = `${openedCount} / ${total} Misi Terbuka`;
+
+      if (openedCount >= total) {
+        cooldownBanner.className = 'comic-card bg-comicYellow text-comicInk p-3.5 sm:p-4 text-center';
+        cooldownBanner.innerHTML = `
+          <div class="font-comic text-lg sm:text-xl text-spideyRed">
+            🏆 YEAY! SEMUA 12 KARTU MISI SUDAH TERBUKA! 🎉
+          </div>
+          <p class="text-xs sm:text-sm font-bold mt-0.5">
+            Klik kartu mana pun kapan saja buat lihat ulang atau simpan Bukti Kuponnya ya! ❤️
+          </p>
+        `;
+        if (lastKnownCooldownLocked !== false) {
+          lastKnownCooldownLocked = false;
+          renderGrid();
+        }
+        return;
+      }
+
+      const remaining = getRemainingCooldownMs();
+      const locked = remaining > 0;
+
+      if (locked) {
+        cooldownBanner.className = 'comic-card bg-comicYellow text-comicInk p-3.5 sm:p-4 text-center';
+        cooldownBanner.innerHTML = `
+          <div class="text-xs sm:text-sm font-extrabold leading-relaxed">
+            Eits, jaringnya lagi diisi ulang dulu! 🕸️ Kamu bisa gosok kartu berikutnya dalam:
+          </div>
+          <div class="mt-1.5 inline-block bg-spideyRed text-white border-2 border-comicInk shadow-[3px_3px_0_#111827] rounded-xl px-3.5 py-1 font-comic text-base sm:text-xl tracking-wide">
+            ${formatCountdownText(remaining)}
+          </div>
+        `;
+      } else {
+        cooldownBanner.className = 'comic-card bg-emerald-400 text-comicInk p-3.5 sm:p-4 text-center';
+        cooldownBanner.innerHTML = `
+          <div class="font-comic text-base sm:text-lg">
+            ⚡ SPIDEY-SENSE AKTIF! Pilih 1 kartu di bawah lalu gosok pakai jarimu! 🕷️✨
+          </div>
+        `;
+      }
+
+      // Render ulang grid secara otomatis jika status cooldown baru berubah
+      if (lastKnownCooldownLocked !== locked) {
+        lastKnownCooldownLocked = locked;
+        renderGrid();
+      }
+    }
+
+    function startCountdownLoop() {
+      if (countdownTimerId) clearInterval(countdownTimerId);
+      updateStatusUI();
+      countdownTimerId = setInterval(updateStatusUI, 1000);
+    }
+
+    /* =====================================================
+       RENDER GRID 12 KARTU GOSOK
+    ===================================================== */
+    function renderGrid() {
+      cardsGrid.innerHTML = '';
+      const locked = isCooldownActive();
+
+      appState.order.forEach((cardId, idx) => {
+        const card = CARDS_DATA.find((c) => c.id === cardId);
+        if (!card) return;
+
+        const slotNum = idx + 1;
+        const isOpened = Boolean(appState.openedCards[cardId]);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.cardId = cardId;
+
+        if (isOpened) {
+          // Tampilan kartu yang SUDAH terbuka
+          btn.className = `comic-card text-left w-full min-h-[196px] sm:min-h-[218px] p-3.5 sm:p-4 flex flex-col items-center justify-between text-center transition-transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer relative overflow-hidden ${
+            card.isJackpot ? 'jackpot-surface jackpot-shimmer' : card.tint
+          }`;
+
+          btn.innerHTML = `
+            <div class="w-full flex items-center justify-between gap-1">
+              <span class="px-2 py-0.5 rounded-md border-2 border-comicInk bg-white text-[10px] font-extrabold text-comicInk">
+                #${slotNum}
+              </span>
+              <span class="px-2 py-0.5 rounded-full border-2 border-comicInk text-[10px] font-extrabold uppercase ${
+                card.isJackpot ? 'bg-spideyRed text-comicYellow' : 'bg-emerald-400 text-comicInk'
+              }">
+                TERBUKA
+              </span>
+            </div>
+
+            <div class="my-2 flex flex-col items-center">
+              <span class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wide px-2.5 py-0.5 rounded-full border-2 border-comicInk mb-1.5 ${
+                card.isJackpot ? 'bg-spideyRed text-white' : 'bg-comicYellow text-comicInk'
+              }">
+                ${card.label}
+              </span>
+              <div class="text-4xl sm:text-5xl my-1">${card.emoji}</div>
+              <h3 class="font-comic text-base sm:text-lg leading-tight ${
+                card.isJackpot ? 'text-spideyRed' : 'text-spideyBlue'
+              }">
+                ${card.title}
+              </h3>
+            </div>
+
+            <div class="text-[11px] font-extrabold text-comicInk bg-white/95 border-2 border-comicInk rounded-lg px-2.5 py-1 w-full">
+              🎟️ Lihat &amp; Simpan Kupon
+            </div>
+          `;
+
+          btn.addEventListener('click', () => {
+            openCardModal(card, slotNum);
+          });
+        } else {
+          // Tampilan kartu TERTUTUP (siap gosok atau sedang cooldown 3 hari)
+          btn.className = `comic-card w-full min-h-[196px] sm:min-h-[218px] p-3.5 sm:p-4 flex flex-col items-center justify-between text-center text-white relative overflow-hidden transition-transform ${
+            locked
+              ? 'locked-tile-bg cursor-not-allowed opacity-95'
+              : 'unscratched-tile-bg hover:-translate-y-1 active:translate-y-0.5 cursor-pointer'
+          }`;
+
+          btn.innerHTML = `
+            <!-- Dekorasi Jaring Sudut Kartu -->
+            <svg class="absolute top-0 right-0 w-16 h-16 opacity-25 pointer-events-none" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+              <path d="M80 0 L0 0 M80 0 L15 35 M80 0 L45 65 M80 0 L80 80" stroke="#FFFFFF" stroke-width="2" />
+              <path d="M55 0 Q58 14 66 22 Q72 26 80 26" stroke="#FFFFFF" stroke-width="1.6" fill="none" />
+              <path d="M30 0 Q36 24 52 40 Q66 50 80 50" stroke="#FFFFFF" stroke-width="1.6" fill="none" />
+            </svg>
+
+            <div class="w-full flex items-center justify-between relative z-10">
+              <span class="px-2.5 py-0.5 rounded-lg border-2 border-comicInk bg-comicYellow text-comicInk text-xs font-extrabold shadow-[2px_2px_0_#111827]">
+                #${slotNum}
+              </span>
+              <span class="text-sm">${locked ? '🔒' : '✨'}</span>
+            </div>
+
+            <!-- Motif Topeng Chibi Spider-Man -->
+            <div class="relative z-10 my-1 flex flex-col items-center">
+              <svg class="w-12 h-12 sm:w-14 sm:h-14 drop-shadow-[2px_3px_0_#111827]" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+                <ellipse cx="50" cy="50" rx="38" ry="35" fill="${locked ? '#94A3B8' : '#FFFFFF'}" stroke="#111827" stroke-width="5" />
+                <ellipse cx="50" cy="50" rx="32" ry="29" fill="${locked ? '#64748B' : '#E62429'}" />
+                <path d="M24 47 C27 36, 40 37, 45 49 C41 58, 28 59, 24 47 Z" fill="#FFFFFF" stroke="#111827" stroke-width="4" />
+                <path d="M76 47 C73 36, 60 37, 55 49 C59 58, 72 59, 76 47 Z" fill="#FFFFFF" stroke="#111827" stroke-width="4" />
+              </svg>
+              <span class="mt-2 font-comic text-sm sm:text-base tracking-wide ${locked ? 'text-slate-200' : 'text-comicYellow comic-outline-sm'}">
+                ${locked ? 'TERKUNCI' : 'MISI RAHASIA'}
+              </span>
+            </div>
+
+            <div class="relative z-10 w-full py-1.5 px-2 rounded-xl border-2 border-comicInk text-xs font-extrabold shadow-[2px_2px_0_#111827] ${
+              locked ? 'bg-slate-200 text-slate-700' : 'bg-comicYellow text-comicInk'
+            }">
+              ${locked ? '🔒 Cooldown 3 Hari' : '👆 Tap & Gosok!'}
+            </div>
+          `;
+
+          btn.addEventListener('click', () => {
+            if (isCooldownActive()) {
+              playLockedBoing();
+              btn.classList.remove('animate-wiggle');
+              void btn.offsetWidth;
+              btn.classList.add('animate-wiggle');
+              const remText = formatCountdownText(getRemainingCooldownMs());
+              showToast(`Eits, sabar dulu ya! 🕸️ Bisa gosok lagi dalam ${remText}`, 'red');
+            } else {
+              openCardModal(card, slotNum);
+            }
+          });
+        }
+
+        cardsGrid.appendChild(btn);
+      });
+    }
+
+    /* =====================================================
+       MODAL GOSOK INTERAKTIF (HTML5 CANVAS FOIL SPIDER-MAN)
+    ===================================================== */
+    function openCardModal(card, slotNumber) {
+      activeCard = card;
+      activeSlotNumber = slotNumber;
+      const openedTimestamp = appState.openedCards[card.id];
+      const alreadyOpened = Boolean(openedTimestamp);
+
+      modalSlotPill.textContent = `KARTU #${slotNumber}`;
+      modalCardLabel.textContent = card.label;
+      modalCardEmoji.textContent = card.emoji;
+      modalCardTitle.textContent = card.title;
+      modalCardDesc.textContent = card.desc;
+
+      // Styling khusus untuk Kartu Jackpot SSR vs Misi Normal
+      if (card.isJackpot) {
+        revealedCardFace.className = 'w-full h-full min-h-[295px] sm:min-h-[325px] p-5 flex flex-col items-center justify-center text-center jackpot-surface jackpot-shimmer';
+        scratchStage.classList.add('jackpot-glow');
+        modalCardLabel.className = 'inline-block px-3.5 py-1 rounded-full border-2 border-comicInk bg-spideyRed text-comicYellow text-xs font-extrabold uppercase tracking-wider mb-2.5 shadow-[2px_2px_0_#111827]';
+        modalCardTitle.className = 'font-comic text-2xl sm:text-3xl text-spideyRed leading-tight mt-1';
+      } else {
+        revealedCardFace.className = `w-full h-full min-h-[295px] sm:min-h-[325px] p-5 flex flex-col items-center justify-center text-center ${card.tint}`;
+        scratchStage.classList.remove('jackpot-glow');
+        modalCardLabel.className = 'inline-block px-3.5 py-1 rounded-full border-2 border-comicInk bg-comicYellow text-comicInk text-xs font-extrabold uppercase tracking-wider mb-2.5 shadow-[2px_2px_0_#111827]';
+        modalCardTitle.className = 'font-comic text-2xl sm:text-3xl text-spideyBlue leading-tight mt-1';
+      }
+
+      updateWhatsAppLink(card);
+
+      scratchModal.classList.remove('hidden');
+      scratchModal.classList.add('flex');
+
+      if (alreadyOpened) {
+        modalIsScratched = true;
+        scratchCanvas.classList.add('hidden');
+        scratchHintBar.classList.add('hidden');
+        revealedActions.classList.remove('hidden');
+        modalOpenedAtText.classList.remove('hidden');
+        modalOpenedAtText.textContent = `Sah & dibuka pada: ${formatIndonesianDateTime(openedTimestamp)}`;
+        modalInstructionText.textContent = card.isJackpot
+          ? '👑 WOW! Kartu Jackpot kamu sudah terbuka!'
+          : '🎟️ Kartu misi terbuka! Simpan bukti kuponnya buat ditagih ya!';
+      } else {
+        modalIsScratched = false;
+        isPointerDown = false;
+        lastPoint = null;
+        scratchMoveTicks = 0;
+
+        scratchCanvas.classList.remove('hidden');
+        scratchCanvas.style.opacity = '1';
+        scratchCanvas.style.pointerEvents = 'auto';
+        scratchHintBar.classList.remove('hidden');
+        scratchPercentText.textContent = '0%';
+        revealedActions.classList.add('hidden');
+        modalOpenedAtText.classList.add('hidden');
+        modalInstructionText.textContent = 'Gosok lapisan foil di bawah pakai jari sampai terbuka! 🕸️';
+
+        // Tunggu 1 frame agar dimensi container terukur akurat setelah modal tampil
+        requestAnimationFrame(() => {
+          initModalScratchCanvas(slotNumber);
+        });
+      }
+    }
+
+    function closeCardModal() {
+      isPointerDown = false;
+      scratchModal.classList.add('hidden');
+      scratchModal.classList.remove('flex');
+    }
+
+    function updateWhatsAppLink(card) {
+      const msg = `Halo! Spidey-Sense aku baru aja buka kartu ${card.title} 🕷️🎟️ Bukti kuponnya udah aku simpan nih, ayo atur jadwal berangkat!`;
+      const rawPhone = String(CONFIG.WHATSAPP_NUMBER || '').trim();
+      const isPlaceholder = /x/i.test(rawPhone);
+      const cleanPhone = isPlaceholder ? '' : rawPhone.replace(/[^0-9]/g, '');
+      const base = cleanPhone ? `https://wa.me/${cleanPhone}` : 'https://wa.me/';
+      waClaimLink.href = `${base}?text=${encodeURIComponent(msg)}`;
+    }
+
+    // Menggambar lapisan foil metalik perak + merah-biru berpola jaring Spider-Man
+    function initModalScratchCanvas(slotNumber) {
+      const rect = scratchStage.getBoundingClientRect();
+      const w = Math.max(240, Math.round(rect.width));
+      const h = Math.max(260, Math.round(rect.height));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      scratchCanvas.width = w * dpr;
+      scratchCanvas.height = h * dpr;
+
+      const ctx = scratchCanvas.getContext('2d');
+      ctx.save();
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.globalCompositeOperation = 'source-over';
+
+      // Gradasi foil metalik perak + aksen merah & biru Spider-Man
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, '#E2E8F0');
+      grad.addColorStop(0.24, '#CBD5E1');
+      grad.addColorStop(0.50, '#E62429');
+      grad.addColorStop(0.76, '#1E40AF');
+      grad.addColorStop(1, '#94A3B8');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Efek kilauan foil diagonal
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+      ctx.lineWidth = 14;
+      for (let x = -h; x < w + h; x += 34) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x + h, h);
+        ctx.stroke();
+      }
+
+      // Pola jaring laba-laba penuh dari tengah foil
+      ctx.strokeStyle = 'rgba(17, 24, 39, 0.30)';
+      ctx.lineWidth = 1.6;
+      const cx = w / 2;
+      const cy = h / 2;
+      const maxR = Math.hypot(w, h) * 0.56;
+      for (let i = 0; i < 12; i++) {
+        const ang = (i * Math.PI * 2) / 12;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(ang) * maxR, cy + Math.sin(ang) * maxR);
+        ctx.stroke();
+      }
+      [42, 82, 124, 168].forEach((r) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // Badge nomor kartu di sudut kiri atas
+      drawRoundedRectPath(ctx, 14, 14, 58, 28, 8);
+      ctx.fillStyle = '#FACC15';
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#111827';
+      ctx.stroke();
+      ctx.fillStyle = '#111827';
+      ctx.font = '800 13px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`#${slotNumber}`, 43, 28);
+
+      // Ilustrasi topeng chibi Spider-Man di tengah foil
+      const headY = h * 0.39;
+      ctx.fillStyle = '#111827';
+      ctx.beginPath();
+      ctx.ellipse(cx + 3, headY + 3, 34, 31, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#E62429';
+      ctx.strokeStyle = '#111827';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.ellipse(cx, headY, 34, 31, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Mata Chibi Spidey
+      ctx.fillStyle = '#FFFFFF';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(cx - 13, headY - 2, 10, 7.5, 0.32, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.ellipse(cx + 13, headY - 2, 10, 7.5, -0.32, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Pita ajakan "GOSOK DI SINI!"
+      const pillW = Math.min(w - 36, 224);
+      const pillH = 44;
+      const pillX = (w - pillW) / 2;
+      const pillY = h * 0.65;
+
+      drawRoundedRectPath(ctx, pillX + 4, pillY + 4, pillW, pillH, 14);
+      ctx.fillStyle = '#111827';
+      ctx.fill();
+
+      drawRoundedRectPath(ctx, pillX, pillY, pillW, pillH, 14);
+      ctx.fillStyle = '#FACC15';
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#111827';
+      ctx.stroke();
+
+      ctx.fillStyle = '#111827';
+      ctx.font = '700 18px "Fredoka", "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('GOSOK DI SINI! 🕷️', cx, pillY + pillH / 2 + 1);
+
+      ctx.restore();
+    }
+
+    function getCanvasPoint(evt) {
+      const rect = scratchCanvas.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+      };
+    }
+
+    function eraseFoilLine(from, to) {
+      const ctx = scratchCanvas.getContext('2d');
+      const dpr = scratchCanvas.width / Math.max(1, scratchCanvas.getBoundingClientRect().width);
+      ctx.save();
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 46;
+
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(to.x, to.y, 23, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      playScratchSound();
+    }
+
+    function calculateScratchedRatio() {
+      const ctx = scratchCanvas.getContext('2d');
+      const cw = scratchCanvas.width;
+      const ch = scratchCanvas.height;
+      if (cw === 0 || ch === 0) return 0;
+
+      try {
+        const pixels = ctx.getImageData(0, 0, cw, ch).data;
+        let cleared = 0;
+        let total = 0;
+        const step = 14;
+        for (let y = 0; y < ch; y += step) {
+          for (let x = 0; x < cw; x += step) {
+            const alphaIdx = (y * cw + x) * 4 + 3;
+            if (pixels[alphaIdx] < 128) cleared++;
+            total++;
+          }
+        }
+        return total > 0 ? cleared / total : 0;
+      } catch (err) {
+        return 0;
+      }
+    }
+
+    function checkScratchCompletion() {
+      if (modalIsScratched || !activeCard) return;
+      const ratio = calculateScratchedRatio();
+      const pct = Math.min(100, Math.round((ratio / SCRATCH_THRESHOLD) * 100));
+      scratchPercentText.textContent = `${pct}%`;
+
+      if (ratio >= SCRATCH_THRESHOLD) {
+        finishCardReveal();
+      }
+    }
+
+    function finishCardReveal() {
+      if (modalIsScratched || !activeCard) return;
+      modalIsScratched = true;
+      isPointerDown = false;
+
+      const now = Date.now();
+      appState.openedCards[activeCard.id] = now;
+      appState.lastScratchAt = now;
+      saveState();
+
+      // Fade-out halus sisa lapisan foil
+      scratchCanvas.style.opacity = '0';
+      scratchCanvas.style.pointerEvents = 'none';
+      setTimeout(() => {
+        scratchCanvas.classList.add('hidden');
+      }, 460);
+
+      // Tampilkan tombol aksi & waktu buka sah
+      scratchHintBar.classList.add('hidden');
+      revealedActions.classList.remove('hidden');
+      modalOpenedAtText.classList.remove('hidden');
+      modalOpenedAtText.textContent = `Sah & dibuka pada: ${formatIndonesianDateTime(now)}`;
+      modalInstructionText.textContent = activeCard.isJackpot
+        ? '👑 JACKPOT TERBUKA! Selamat, hoki banget hari ini!'
+        : '🎉 MISI TERBUKA! Jangan lupa simpan Bukti Kuponnya ya!';
+
+      // Efek membal pada kartu
+      scratchStage.classList.add('animate-reveal-bounce');
+      setTimeout(() => scratchStage.classList.remove('animate-reveal-bounce'), 500);
+
+      // Efek suara + konfeti
+      if (activeCard.isJackpot) {
+        playJackpotFanfare();
+        launchConfetti(true);
+      } else {
+        playRevealChime();
+        launchConfetti(false);
+      }
+
+      // Perbarui status grid & mulai hitung mundur 72 jam
+      lastKnownCooldownLocked = null;
+      updateStatusUI();
+      renderGrid();
+    }
+
+    // Event Pointer (sentuhan jari HP & klik drag mouse)
+    scratchCanvas.addEventListener('pointerdown', (e) => {
+      if (modalIsScratched) return;
+      e.preventDefault();
+      getAudioCtx();
+      try {
+        scratchCanvas.setPointerCapture(e.pointerId);
+      } catch (err) {}
+      isPointerDown = true;
+      lastPoint = getCanvasPoint(e);
+      eraseFoilLine(lastPoint, lastPoint);
+    });
+
+    scratchCanvas.addEventListener('pointermove', (e) => {
+      if (!isPointerDown || modalIsScratched) return;
+      e.preventDefault();
+      const pt = getCanvasPoint(e);
+      eraseFoilLine(lastPoint, pt);
+      lastPoint = pt;
+      scratchMoveTicks++;
+      if (scratchMoveTicks % 5 === 0) {
+        checkScratchCompletion();
+      }
+    });
+
+    function stopScratching(e) {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+      try {
+        if (e && e.pointerId !== undefined) {
+          scratchCanvas.releasePointerCapture(e.pointerId);
+        }
+      } catch (err) {}
+      checkScratchCompletion();
+    }
+
+    scratchCanvas.addEventListener('pointerup', stopScratching);
+    scratchCanvas.addEventListener('pointercancel', stopScratching);
+
+    closeScratchModalBtn.addEventListener('click', closeCardModal);
+    backToGridBtn.addEventListener('click', closeCardModal);
+    scratchModal.addEventListener('click', (e) => {
+      if (e.target === scratchModal) closeCardModal();
+    });
+
+    /* =====================================================
+       GENERATOR BUKTI KUPON PNG 900x1150 (HTML5 CANVAS)
+    ===================================================== */
+    function wrapTextLines(ctx, text, maxWidth) {
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = '';
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = currentLine ? `${currentLine} ${words[i]}` : words[i];
+        if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = words[i];
+        } else {
+          currentLine = testLine;
+        }
+      }
+      if (currentLine) lines.push(currentLine);
+      return lines;
+    }
+
+    function drawCornerWebOnCanvas(ctx, cornerX, cornerY, startAngle, endAngle, color) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      const steps = 4;
+      for (let i = 0; i <= steps; i++) {
+        const a = startAngle + ((endAngle - startAngle) * i) / steps;
+        ctx.beginPath();
+        ctx.moveTo(cornerX, cornerY);
+        ctx.lineTo(cornerX + Math.cos(a) * 140, cornerY + Math.sin(a) * 140);
+        ctx.stroke();
+      }
+      [42, 82, 122].forEach((r) => {
+        ctx.beginPath();
+        ctx.arc(cornerX, cornerY, r, startAngle, endAngle);
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    async function generateCouponProofPNG(card) {
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (err) {}
+      }
+
+      const W = 900;
+      const H = 1150;
+      const canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      const isJackpot = card.isJackpot;
+      const openedAtMs = appState.openedCards[card.id] || Date.now();
+      const formattedDate = formatIndonesianDateTime(openedAtMs);
+
+      // 1. Latar Luar Halftone Komik
+      ctx.fillStyle = isJackpot ? '#FEF3C7' : '#DBEAFE';
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.fillStyle = isJackpot ? 'rgba(217, 119, 6, 0.14)' : 'rgba(30, 64, 175, 0.12)';
+      for (let y = 14; y < H; y += 26) {
+        for (let x = 14; x < W; x += 26) {
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // 2. Bentuk Tiket Utama dengan Coakan Sobek Kiri & Kanan
+      const tx = 56;
+      const ty = 56;
+      const tw = W - 112;
+      const th = H - 112;
+      const notchY = 855;
+      const notchR = 30;
+      const radius = 34;
+
+      function traceTicketPath(offsetX = 0, offsetY = 0) {
+        const x = tx + offsetX;
+        const y = ty + offsetY;
+        const right = x + tw;
+        const bottom = y + th;
+        const ny = notchY + offsetY;
+
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(right - radius, y);
+        ctx.quadraticCurveTo(right, y, right, y + radius);
+        ctx.lineTo(right, ny - notchR);
+        ctx.arc(right, ny, notchR, -Math.PI / 2, Math.PI / 2, true);
+        ctx.lineTo(right, bottom - radius);
+        ctx.quadraticCurveTo(right, bottom, right - radius, bottom);
+        ctx.lineTo(x + radius, bottom);
+        ctx.quadraticCurveTo(x, bottom, x, bottom - radius);
+        ctx.lineTo(x, ny + notchR);
+        ctx.arc(x, ny, notchR, Math.PI / 2, -Math.PI / 2, true);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      // Bayangan keras ala komik
+      traceTicketPath(14, 14);
+      ctx.fillStyle = '#111827';
+      ctx.fill();
+
+      // Isi tiket
+      traceTicketPath(0, 0);
+      if (isJackpot) {
+        const g = ctx.createLinearGradient(tx, ty, tx + tw, ty + th);
+        g.addColorStop(0, '#FEF9C3');
+        g.addColorStop(0.5, '#FDE047');
+        g.addColorStop(1, '#FACC15');
+        ctx.fillStyle = g;
+      } else {
+        ctx.fillStyle = '#FFFFFF';
+      }
+      ctx.fill();
+
+      // Clip semua konten di dalam bentuk tiket
+      ctx.save();
+      traceTicketPath(0, 0);
+      ctx.clip();
+
+      // 3. Header Tiket
+      const headerH = 148;
+      ctx.fillStyle = isJackpot ? '#111827' : '#E62429';
+      ctx.fillRect(tx, ty, tw, headerH);
+
+      // Garis diagonal halus pada header
+      ctx.strokeStyle = isJackpot ? 'rgba(250, 204, 21, 0.16)' : 'rgba(30, 64, 175, 0.28)';
+      ctx.lineWidth = 14;
+      for (let sx = tx - headerH; sx < tx + tw + headerH; sx += 36) {
+        ctx.beginPath();
+        ctx.moveTo(sx, ty);
+        ctx.lineTo(sx + headerH, ty + headerH);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(tx, ty + headerH - 6, tw, 6);
+
+      ctx.fillStyle = '#FACC15';
+      ctx.font = '800 32px "Fredoka", "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('BUKTI SAH • SPIDEY-DATE COUPON', W / 2, ty + 60);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '700 20px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('ANTI-BINGUNG CLUB • OFFICIAL MISSION TICKET 🕷️', W / 2, ty + 105);
+
+      // 4. Jaring Laba-Laba di Sudut Konten
+      const webColor = isJackpot ? 'rgba(180, 83, 9, 0.22)' : 'rgba(30, 64, 175, 0.16)';
+      drawCornerWebOnCanvas(ctx, tx, ty + headerH, 0, Math.PI / 2, webColor);
+      drawCornerWebOnCanvas(ctx, tx + tw, ty + headerH, Math.PI / 2, Math.PI, webColor);
+
+      // 5. Badge Label Misi
+      const pillText = card.label.toUpperCase();
+      ctx.font = '800 23px "Plus Jakarta Sans", sans-serif';
+      const pillW = Math.max(220, ctx.measureText(pillText).width + 68);
+      const pillH = 52;
+      const pillX = (W - pillW) / 2;
+      const pillY = ty + headerH + 34;
+
+      drawRoundedRectPath(ctx, pillX + 5, pillY + 5, pillW, pillH, 26);
+      ctx.fillStyle = '#111827';
+      ctx.fill();
+
+      drawRoundedRectPath(ctx, pillX, pillY, pillW, pillH, 26);
+      ctx.fillStyle = isJackpot ? '#E62429' : '#FACC15';
+      ctx.fill();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#111827';
+      ctx.stroke();
+
+      ctx.fillStyle = isJackpot ? '#FACC15' : '#111827';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(pillText, W / 2, pillY + pillH / 2 + 1);
+
+      // 6. Lingkaran Emoji Besar
+      const emojiCenterY = pillY + 144;
+      ctx.beginPath();
+      ctx.arc(W / 2 + 6, emojiCenterY + 6, 78, 0, Math.PI * 2);
+      ctx.fillStyle = '#111827';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(W / 2, emojiCenterY, 78, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = '#111827';
+      ctx.stroke();
+
+      ctx.font = '86px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(card.emoji, W / 2, emojiCenterY + 5);
+
+      // 7. Judul Misi (Word-Wrapped)
+      ctx.font = '700 44px "Fredoka", "Plus Jakarta Sans", sans-serif';
+      const titleLines = wrapTextLines(ctx, card.title, tw - 110);
+      let curY = emojiCenterY + 124;
+      ctx.fillStyle = isJackpot ? '#B91C1C' : '#1E40AF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      titleLines.forEach((line) => {
+        ctx.fillText(line, W / 2, curY);
+        curY += 50;
+      });
+
+      // 8. Kotak Deskripsi Misi (Word-Wrapped)
+      ctx.font = '600 24px "Plus Jakarta Sans", sans-serif';
+      const descLines = wrapTextLines(ctx, card.desc, tw - 150);
+      const descLineHeight = 34;
+      const boxPadY = 22;
+      const descBoxH = descLines.length * descLineHeight + boxPadY * 2;
+      const descBoxX = tx + 48;
+      const descBoxY = curY + 4;
+      const descBoxW = tw - 96;
+
+      drawRoundedRectPath(ctx, descBoxX + 5, descBoxY + 5, descBoxW, descBoxH, 22);
+      ctx.fillStyle = 'rgba(17, 24, 39, 0.12)';
+      ctx.fill();
+
+      drawRoundedRectPath(ctx, descBoxX, descBoxY, descBoxW, descBoxH, 22);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+      ctx.lineWidth = 3.5;
+      ctx.strokeStyle = '#111827';
+      ctx.stroke();
+
+      ctx.fillStyle = '#1F2937';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      descLines.forEach((line, idx) => {
+        ctx.fillText(line, W / 2, descBoxY + boxPadY + descLineHeight / 2 + idx * descLineHeight);
+      });
+
+      // 9. Garis Sobek Putus-Putus
+      ctx.save();
+      ctx.strokeStyle = '#111827';
+      ctx.lineWidth = 4;
+      ctx.setLineDash([14, 12]);
+      ctx.beginPath();
+      ctx.moveTo(tx + 38, notchY);
+      ctx.lineTo(tx + tw - 38, notchY);
+      ctx.stroke();
+      ctx.restore();
+
+      // 10. Stempel Komik Bulat "SAH!" (Miring Merah/Emas)
+      ctx.save();
+      ctx.translate(tx + tw - 122, notchY + 106);
+      ctx.rotate(-0.22);
+
+      const stampStroke = isJackpot ? '#B45309' : '#E62429';
+      const stampFill = isJackpot ? 'rgba(245, 158, 11, 0.18)' : 'rgba(230, 36, 41, 0.14)';
+
+      ctx.beginPath();
+      ctx.arc(0, 0, 70, 0, Math.PI * 2);
+      ctx.fillStyle = stampFill;
+      ctx.fill();
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = stampStroke;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, 58, 0, Math.PI * 2);
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.fillStyle = stampStroke;
+      ctx.font = '700 36px "Fredoka", "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('SAH!', 0, -6);
+
+      ctx.font = '800 13px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('NO CANCEL • 100%', 0, 22);
+      ctx.restore();
+
+      // 11. Footer Status & Tanggal Buka Otomatis
+      const footerLeftX = tx + 52;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+
+      ctx.fillStyle = isJackpot ? '#92400E' : '#1E40AF';
+      ctx.font = '800 22px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Status: SAH & SIAP DITAGIH', footerLeftX, notchY + 72);
+
+      ctx.fillStyle = '#111827';
+      ctx.font = '700 21px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(`Dibuka pada: ${formattedDate}`, footerLeftX, notchY + 112);
+
+      // Baris gabungan resmi tepat di bagian bawah tiket
+      ctx.fillStyle = '#374151';
+      ctx.font = '700 17px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Status: SAH & SIAP DITAGIH • Dibuka pada: ${formattedDate}`, W / 2, ty + th - 42);
+
+      ctx.restore(); // selesai clip tiket
+
+      // 12. Garis Tepi Luar Tiket
+      traceTicketPath(0, 0);
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = '#111827';
+      ctx.stroke();
+
+      return canvas.toDataURL('image/png');
+    }
+
+    saveProofBtn.addEventListener('click', async () => {
+      if (!activeCard) return;
+
+      const origText = saveProofBtn.innerHTML;
+      saveProofBtn.disabled = true;
+      saveProofBtn.innerHTML = '<span>⏳ Membuat Bukti Kupon...</span>';
+
+      try {
+        const dataUrl = await generateCouponProofPNG(activeCard);
+        const fileName = `spidey-coupon-${slugify(activeCard.title)}.png`;
+
+        proofPreviewImg.src = dataUrl;
+        manualDownloadLink.href = dataUrl;
+        manualDownloadLink.download = fileName;
+
+        // Trigger download otomatis
+        const dl = document.createElement('a');
+        dl.href = dataUrl;
+        dl.download = fileName;
+        document.body.appendChild(dl);
+        dl.click();
+        document.body.removeChild(dl);
+
+        // Tampilkan juga modal preview gambar untuk perangkat mobile/iOS
+        proofPreviewModal.classList.remove('hidden');
+        proofPreviewModal.classList.add('flex');
+        showToast('📸 Bukti Kupon siap disimpan ke galeri!', 'green');
+      } catch (err) {
+        showToast('Ups, gagal bikin gambar kupon. Coba lagi ya!', 'red');
+      } finally {
+        saveProofBtn.disabled = false;
+        saveProofBtn.innerHTML = origText;
+      }
+    });
+
+    function closeProofModal() {
+      proofPreviewModal.classList.add('hidden');
+      proofPreviewModal.classList.remove('flex');
+    }
+
+    closeProofModalBtn.addEventListener('click', closeProofModal);
+    doneProofModalBtn.addEventListener('click', closeProofModal);
+    proofPreviewModal.addEventListener('click', (e) => {
+      if (e.target === proofPreviewModal) closeProofModal();
+    });
+
+    /* =====================================================
+       WELCOME POPUP (OTOMATIS SAAT KUNJUNGAN PERTAMA)
+    ===================================================== */
+    function openWelcomeModal() {
+      welcomeModal.classList.remove('hidden');
+      welcomeModal.classList.add('flex');
+    }
+
+    function closeWelcomeModal() {
+      welcomeModal.classList.add('hidden');
+      welcomeModal.classList.remove('flex');
+      if (!appState.welcomeSeen) {
+        appState.welcomeSeen = true;
+        saveState();
+      }
+    }
+
+    welcomeCtaBtn.addEventListener('click', () => {
+      getAudioCtx();
+      closeWelcomeModal();
+    });
+
+    openRulesBtn.addEventListener('click', openWelcomeModal);
+
+    /* =====================================================
+       PANEL RAHASIA TESTING (5X TAP 🕷️ DALAM 3 DETIK)
+    ===================================================== */
+    let spiderTapTimestamps = [];
+
+    secretSpiderBtn.addEventListener('click', () => {
+      const now = Date.now();
+      spiderTapTimestamps = spiderTapTimestamps.filter((t) => now - t <= 3000);
+      spiderTapTimestamps.push(now);
+
+      if (spiderTapTimestamps.length >= 5) {
+        spiderTapTimestamps = [];
+        jackpotPeekBox.classList.add('hidden');
+        adminModal.classList.remove('hidden');
+        adminModal.classList.add('flex');
+      }
+    });
+
+    function closeAdminModal() {
+      adminModal.classList.add('hidden');
+      adminModal.classList.remove('flex');
+    }
+
+    adminCloseBtn.addEventListener('click', closeAdminModal);
+    adminModal.addEventListener('click', (e) => {
+      if (e.target === adminModal) closeAdminModal();
+    });
+
+    adminClearCooldownBtn.addEventListener('click', () => {
+      appState.lastScratchAt = null;
+      saveState();
+      lastKnownCooldownLocked = null;
+      updateStatusUI();
+      renderGrid();
+      closeAdminModal();
+      showToast('⚡ Cooldown 3 hari dihapus! Kamu bisa langsung tes gosok lagi.', 'green');
+    });
+
+    adminResetAllBtn.addEventListener('click', () => {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (err) {}
+      loadState();
+      appState.welcomeSeen = true;
+      saveState();
+      lastKnownCooldownLocked = null;
+      updateStatusUI();
+      renderGrid();
+      closeAdminModal();
+      showToast('🔄 Semua kartu di-reset & diacak ulang! Siap dibagikan.', 'blue');
+    });
+
+    adminPeekJackpotBtn.addEventListener('click', () => {
+      const jackpotIdx = appState.order.findIndex((id) => id === 'jackpot-wildcard');
+      const slotNum = jackpotIdx >= 0 ? jackpotIdx + 1 : '?';
+      jackpotPeekBox.textContent = `👑 Psst... Kartu JACKPOT saat ini ada di Kartu #${slotNum}!`;
+      jackpotPeekBox.classList.remove('hidden');
+    });
+
+    /* =====================================================
+       MESIN KONFETI KOMIK (EXTRA EMAS UNTUK JACKPOT)
+    ===================================================== */
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const confettiCtx = confettiCanvas.getContext('2d');
+    let confettiPieces = [];
+    let confettiFrameId = null;
+
+    function resizeConfettiCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      confettiCanvas.width = window.innerWidth * dpr;
+      confettiCanvas.height = window.innerHeight * dpr;
+      confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    window.addEventListener('resize', resizeConfettiCanvas);
+    resizeConfettiCanvas();
+
+    function launchConfetti(isJackpot = false) {
+      const palette = isJackpot
+        ? ['#FACC15', '#FDE047', '#F59E0B', '#EAB308', '#FEF08A', '#E62429', '#1E40AF']
+        : ['#E62429', '#1E40AF', '#FACC15', '#FFFFFF'];
+
+      const total = isJackpot ? 185 : 85;
+      const ox = window.innerWidth / 2;
+      const oy = window.innerHeight * 0.44;
+
+      for (let i = 0; i < total; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = (isJackpot ? 5.5 : 4) + Math.random() * (isJackpot ? 11.5 : 8);
+        confettiPieces.push({
+          x: ox + (Math.random() - 0.5) * 65,
+          y: oy + (Math.random() - 0.5) * 40,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - (isJackpot ? 5.8 : 4),
+          size: (isJackpot ? 7.5 : 6) + Math.random() * 6,
+          color: palette[Math.floor(Math.random() * palette.length)],
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 14,
+          shape: Math.random() > 0.35 ? 'rect' : 'star',
+          alpha: 1
+        });
+      }
+
+      if (!confettiFrameId) {
+        animateConfetti();
+      }
+    }
+
+    function drawMiniStar(ctx, r) {
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const a1 = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+        const a2 = a1 + Math.PI / 5;
+        ctx.lineTo(Math.cos(a1) * r, Math.sin(a1) * r);
+        ctx.lineTo(Math.cos(a2) * (r * 0.46), Math.sin(a2) * (r * 0.46));
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function animateConfetti() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      confettiCtx.clearRect(0, 0, w, h);
+
+      for (let i = confettiPieces.length - 1; i >= 0; i--) {
+        const p = confettiPieces[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.28;
+        p.vx *= 0.985;
+        p.rot += p.rotSpeed;
+
+        if (p.y > h - 80) p.alpha -= 0.03;
+        if (p.y > h + 40 || p.alpha <= 0) {
+          confettiPieces.splice(i, 1);
+          continue;
+        }
+
+        confettiCtx.save();
+        confettiCtx.globalAlpha = Math.max(0, p.alpha);
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate((p.rot * Math.PI) / 180);
+        confettiCtx.fillStyle = p.color;
+        confettiCtx.strokeStyle = '#111827';
+        confettiCtx.lineWidth = 1.4;
+
+        if (p.shape === 'star') {
+          drawMiniStar(confettiCtx, p.size * 0.75);
+        } else {
+          confettiCtx.fillRect(-p.size / 2, -p.size * 0.35, p.size, p.size * 0.7);
+          confettiCtx.strokeRect(-p.size / 2, -p.size * 0.35, p.size, p.size * 0.7);
+        }
+        confettiCtx.restore();
+      }
+
+      if (confettiPieces.length > 0) {
+        confettiFrameId = requestAnimationFrame(animateConfetti);
+      } else {
+        confettiFrameId = null;
+        confettiCtx.clearRect(0, 0, w, h);
+      }
+    }
+
+    /* =====================================================
+       INISIALISASI APLIKASI SAAT HALAMAN DIMUAT
+    ===================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      initYoutubePlayer();
+      renderGrid();
+      startCountdownLoop();
+
+      // Munculkan popup sapaan "Haloo Kak Anggy!" otomatis saat pertama kali dibuka
+      if (!appState.welcomeSeen) {
+        openWelcomeModal();
+      }
+    });
+  </script>
+</body>
+</html>
