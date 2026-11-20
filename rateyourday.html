@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>How was ur day? — Daily Review</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+          },
+          colors: {
+            surface: '#F6F7F9',
+          },
+          boxShadow: {
+            card: '0 10px 35px -5px rgba(24, 24, 27, 0.06), 0 4px 12px -4px rgba(24, 24, 27, 0.03)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Animasi mikro & penyesuaian ringan untuk interaksi mobile -->
+  <style>
+    html, body {
+      -webkit-tap-highlight-color: transparent;
+      background-color: #F6F7F9;
+    }
+
+    /* Animasi bounce halus saat bintang dipilih */
+    @keyframes starPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.26); }
+      75% { transform: scale(0.94); }
+      100% { transform: scale(1); }
+    }
+    .animate-star-pop {
+      animation: starPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Animasi getar ringan jika tombol kirim ditekan sebelum memilih bintang */
+    @keyframes gentleShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    .animate-shake {
+      animation: gentleShake 0.38s ease-in-out;
+    }
+
+    /* Transisi masuk halaman */
+    @keyframes fadeSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(14px) scale(0.99);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .animate-view-in {
+      animation: fadeSlideUp 0.36s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Canvas konfeti penuh layar tanpa menghalangi klik/tap */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body class="bg-surface text-zinc-900 font-sans antialiased min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-10 selection:bg-amber-100 selection:text-zinc-900">
+
+  <!-- Canvas Konfeti Ringan (muncul untuk rating 4 & 5 bintang) -->
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Kontainer Utama (Mobile-First) -->
+  <main class="w-full max-w-[420px] relative z-10">
+
+    <!-- ========================================================= -->
+    <!-- VIEW 1: FORM ULASAN HARIAN                                -->
+    <!-- ========================================================= -->
+    <section id="review-form-view" class="bg-white rounded-3xl border border-zinc-200/80 shadow-card p-5 sm:p-7 animate-view-in">
+      <!-- Header Meta: Label & Tanggal Otomatis -->
+      <div class="flex items-center justify-between gap-2 mb-5">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-600 text-[11px] font-bold tracking-wider uppercase">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+          Daily Review
+        </span>
+        <time id="form-date" class="text-xs font-medium text-zinc-400"></time>
+      </div>
+
+      <!-- Judul & Subjudul -->
+      <header class="mb-6">
+        <h1 class="text-2xl sm:text-[26px] font-extrabold tracking-tight text-zinc-900 leading-tight">
+          How was ur day?
+        </h1>
+        <p class="text-sm text-zinc-500 mt-1.5 leading-relaxed">
+          Kasih ulasan buat hari ini sebelum istirahat.
+        </p>
+      </header>
+
+      <!-- Area Rating 1-5 Bintang -->
+      <div id="rating-box" class="bg-zinc-50/90 border border-zinc-200/70 rounded-2xl p-4 sm:p-5 mb-6 transition-colors duration-200">
+        <div id="star-container" class="flex items-center justify-center gap-1.5 sm:gap-2" role="radiogroup" aria-label="Pilih rating hari ini dari 1 sampai 5 bintang">
+          <!-- Bintang 1 sampai 5 di-render dari JS agar rapi dan mudah dikelola -->
+        </div>
+
+        <!-- Teks Reaksi Dinamis di Bawah Bintang -->
+        <p id="rating-reaction" class="text-center text-[13px] font-medium text-zinc-400 mt-3.5 min-h-[20px] transition-all duration-200">
+          Tap bintang untuk menilai hari ini
+        </p>
+
+        <!-- Pesan Validasi Halus -->
+        <p id="rating-error" class="hidden text-center text-xs font-semibold text-rose-500 mt-2">
+          Pilih jumlah bintangnya dulu ya sebelum kirim ulasan!
+        </p>
+      </div>
+
+      <!-- Bagian Tag Highlight Multi-Select -->
+      <div class="mb-6">
+        <label class="block text-xs font-semibold text-zinc-600 mb-3">
+          Highlight hari ini <span class="font-normal text-zinc-400">(boleh pilih lebih dari satu):</span>
+        </label>
+        <div id="tags-container" class="flex flex-wrap gap-2">
+          <!-- Chip tag di-render secara dinamis melalui JavaScript -->
+        </div>
+      </div>
+
+      <!-- Input Catatan Opsional -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-2">
+          <label for="note-input" class="block text-xs font-semibold text-zinc-600">
+            Catatan tambahan <span class="font-normal text-zinc-400">(opsional)</span>
+          </label>
+          <span id="note-counter" class="text-[11px] text-zinc-400">0/120</span>
+        </div>
+        <input
+          id="note-input"
+          type="text"
+          maxlength="120"
+          autocomplete="off"
+          placeholder="Ada cerita singkat hari ini? (boleh dikosongin)"
+          class="w-full px-3.5 py-3 text-sm text-zinc-800 placeholder:text-zinc-400 bg-zinc-50 border border-zinc-200/80 rounded-2xl focus:outline-none focus:bg-white focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10 transition-all"
+        />
+      </div>
+
+      <!-- Tombol Utama Kirim Ulasan -->
+      <button
+        id="submit-btn"
+        type="button"
+        class="w-full py-3.5 px-5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-[0.98] text-white font-semibold text-sm shadow-sm transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <span>Kirim Ulasan</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+        </svg>
+      </button>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 2: KARTU HASIL ULASAN (SIAP SCREENSHOT)              -->
+    <!-- ========================================================= -->
+    <section id="result-view" class="hidden">
+      <!-- Kartu Utama yang Didesain Rapi untuk di-Screenshot -->
+      <article id="summary-card" class="relative bg-white rounded-3xl border border-zinc-200/80 shadow-card p-5 sm:p-6 overflow-hidden">
+
+        <!-- Header Struk / Kartu Ulasan -->
+        <div class="flex items-center justify-between gap-2 pb-4 border-b border-zinc-100">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="text-[11px] font-extrabold tracking-widest uppercase text-zinc-700">Ulasan Hari Ini</span>
+          </div>
+          <time id="result-datetime" class="text-[11px] font-medium text-zinc-400"></time>
+        </div>
+
+        <!-- Ringkasan Bintang, Skor, dan Status Badge -->
+        <div class="text-center py-5">
+          <div id="result-stars" class="flex items-center justify-center gap-1.5 mb-2.5" aria-label="Bintang terpilih">
+            <!-- Bintang hasil di-render oleh JS -->
+          </div>
+
+          <div class="flex items-baseline justify-center gap-1 mb-3">
+            <span id="result-score" class="text-3xl font-extrabold tracking-tight text-zinc-900">0.0</span>
+            <span class="text-sm font-semibold text-zinc-400">/ 5.0</span>
+          </div>
+
+          <span id="result-badge" class="inline-block px-3.5 py-1 rounded-full text-[11px] font-extrabold tracking-wider uppercase border">
+            STATUS
+          </span>
+        </div>
+
+        <!-- Daftar Tag Highlight Terpilih (Muncul jika ada yang dipilih) -->
+        <div id="result-tags-wrapper" class="hidden mb-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2">Highlight</p>
+          <div id="result-tags" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <!-- Catatan Tambahan (Muncul jika diisi) -->
+        <div id="result-note-wrapper" class="hidden mb-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Catatan</p>
+          <div class="bg-zinc-50/90 border border-zinc-100 rounded-2xl px-3.5 py-2.5">
+            <p id="result-note" class="text-[13px] text-zinc-700 leading-relaxed break-words"></p>
+          </div>
+        </div>
+
+        <!-- Kotak Komentar Sistem -->
+        <div class="bg-zinc-50 border border-zinc-200/70 rounded-2xl p-4">
+          <div class="flex items-center gap-1.5 mb-1.5">
+            <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 1.5l2.05 5.45L17.5 9l-5.45 2.05L10 16.5l-2.05-5.45L2.5 9l5.45-2.05L10 1.5z" />
+            </svg>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Komentar Sistem</span>
+          </div>
+          <p id="result-system-comment" class="text-[13px] sm:text-sm text-zinc-700 leading-relaxed font-medium"></p>
+        </div>
+
+        <!-- Garis Putus-Putus Halus Ala Struk Modern -->
+        <div class="relative my-5">
+          <div class="border-t border-dashed border-zinc-200"></div>
+          <!-- Aksen lekukan kiri & kanan struk -->
+          <span class="w-5 h-5 rounded-full bg-surface border border-zinc-200/80 absolute -left-8 -top-2.5" aria-hidden="true"></span>
+          <span class="w-5 h-5 rounded-full bg-surface border border-zinc-200/80 absolute -right-8 -top-2.5" aria-hidden="true"></span>
+        </div>
+
+        <!-- Catatan Pancingan Screenshot ke DM -->
+        <p class="text-center text-xs text-zinc-500 leading-relaxed px-1">
+          📸 Screenshot kartu ini terus kirim balik ke DM ya, penasaran hari ini dapat bintang berapa wkwk
+        </p>
+      </article>
+
+      <!-- Tombol Utilitas di Luar Area Kartu Screenshot -->
+      <div class="grid grid-cols-2 gap-2.5 mt-4">
+        <button
+          id="copy-btn"
+          type="button"
+          class="py-3 px-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-[0.98] text-white font-semibold text-xs sm:text-[13px] shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
+          </svg>
+          <span>Salin Teks</span>
+        </button>
+
+        <button
+          id="edit-btn"
+          type="button"
+          class="py-3 px-4 rounded-2xl bg-white hover:bg-zinc-50 active:scale-[0.98] text-zinc-700 font-semibold text-xs sm:text-[13px] border border-zinc-200/90 shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487 18.55 2.8a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+          </svg>
+          <span>Ubah Ulasan</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notifikasi Salin Teks -->
+  <div
+    id="toast"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-zinc-900 text-white text-xs font-semibold shadow-lg opacity-0 pointer-events-none translate-y-2 transition-all duration-200 whitespace-nowrap"
+  >
+    Tersalin! Tinggal paste di DM
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- LOGIKA APLIKASI (VANILLA JS)                              -->
+  <!-- ========================================================= -->
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================
+      // 1. DATA KONFIGURASI ULASAN
+      // =========================================================
+
+      /** Daftar pilihan highlight harian yang relatable */
+      const HIGHLIGHT_TAGS = [
+        '☕ Diselamatkan kopi',
+        '💻 Aktivitas aman',
+        '🤯 Kepala agak ngebul',
+        '😴 Kurang tidur',
+        '🍜 Makan enak',
+        '🚗 Capek di jalan',
+        '🎮 Butuh hiburan',
+        '📅 Pengen cepet weekend',
+        '😌 Santai banget',
+      ];
+
+      /** Konfigurasi reaksi, badge status, warna badge, dan komentar sistem per rating */
+      const RATING_CONFIG = {
+        1: {
+          reaction: 'Berat banget ya? Sini tarik napas dulu 🫠',
+          badge: 'MODE SURVIVAL',
+          badgeClass: 'bg-rose-50 text-rose-600 border-rose-200/80',
+          systemComment: 'Salut sih udah berhasil lewatin hari ini. Jangan lupa istirahat, besok semoga jauh lebih aman.',
+        },
+        2: {
+          reaction: 'Agak chaos dikit, yang penting masih selamat 😅',
+          badge: 'BUTUH RECHARGE',
+          badgeClass: 'bg-orange-50 text-orange-600 border-orange-200/80',
+          systemComment: 'Hari yang lumayan nguras energi ya. Waktunya rebahan dan lepasin semua pikiran dulu, besok semoga jauh lebih aman.',
+        },
+        3: {
+          reaction: 'Standar lah ya, yang penting hari ini kelar ✌️',
+          badge: 'AMAN TERKENDALI',
+          badgeClass: 'bg-sky-50 text-sky-600 border-sky-200/80',
+          systemComment: 'Gak selalu harus luar biasa, yang penting hari ini beres dengan selamat dan aman terkendali.',
+        },
+        4: {
+          reaction: 'Lumayan oke nih, ada momen serunya 👍',
+          badge: 'HARI ASYIK',
+          badgeClass: 'bg-emerald-50 text-emerald-600 border-emerald-200/80',
+          systemComment: 'Mantap, ikut senang dengernya! Semoga mood bagusnya awet sampai besok.',
+        },
+        5: {
+          reaction: 'Gacor banget! Hari yang langka nih ✨',
+          badge: 'PEAK PERFORMANCE',
+          badgeClass: 'bg-amber-50 text-amber-600 border-amber-200/80',
+          systemComment: 'Mantap banget, hari bintang lima gini wajib dirayain! Semoga energi bagusnya awet terus sampai besok.',
+        },
+      };
+
+      // =========================================================
+      // 2. STATE APLIKASI
+      // =========================================================
+      const state = {
+        rating: 0,
+        hoverRating: 0,
+        selectedTags: new Set(),
+        note: '',
+        submittedTimestamp: null,
+      };
+
+      // =========================================================
+      // 3. REFERENSI ELEMEN DOM
+      // =========================================================
+      const formView = document.getElementById('review-form-view');
+      const resultView = document.getElementById('result-view');
+      const formDateEl = document.getElementById('form-date');
+      const ratingBox = document.getElementById('rating-box');
+      const starContainer = document.getElementById('star-container');
+      const ratingReactionEl = document.getElementById('rating-reaction');
+      const ratingErrorEl = document.getElementById('rating-error');
+      const tagsContainer = document.getElementById('tags-container');
+      const noteInput = document.getElementById('note-input');
+      const noteCounter = document.getElementById('note-counter');
+      const submitBtn = document.getElementById('submit-btn');
+
+      // Elemen Halaman Hasil
+      const resultDatetimeEl = document.getElementById('result-datetime');
+      const resultStarsEl = document.getElementById('result-stars');
+      const resultScoreEl = document.getElementById('result-score');
+      const resultBadgeEl = document.getElementById('result-badge');
+      const resultTagsWrapper = document.getElementById('result-tags-wrapper');
+      const resultTagsEl = document.getElementById('result-tags');
+      const resultNoteWrapper = document.getElementById('result-note-wrapper');
+      const resultNoteEl = document.getElementById('result-note');
+      const resultSystemCommentEl = document.getElementById('result-system-comment');
+      const copyBtn = document.getElementById('copy-btn');
+      const editBtn = document.getElementById('edit-btn');
+      const toastEl = document.getElementById('toast');
+
+      // =========================================================
+      // 4. UTILITAS FORMAT TANGGAL & WAKTU INDONESIA
+      // =========================================================
+
+      const INDONESIAN_DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const INDONESIAN_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+      /** Format tanggal: "Jumat, 20 Nov 2026" */
+      function formatIndonesianDate(date) {
+        const dayName = INDONESIAN_DAYS[date.getDay()];
+        const dayNum = date.getDate();
+        const monthName = INDONESIAN_MONTHS[date.getMonth()];
+        const year = date.getFullYear();
+        return `${dayName}, ${dayNum} ${monthName} ${year}`;
+      }
+
+      /** Format tanggal & jam untuk kartu hasil: "20 Nov 2026 • 22:27" */
+      function formatIndonesianDateTime(date) {
+        const dayNum = date.getDate();
+        const monthName = INDONESIAN_MONTHS[date.getMonth()];
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${dayNum} ${monthName} ${year} • ${hours}:${minutes}`;
+      }
+
+      /** Membuat markup SVG bintang */
+      function createStarSVG(sizeClass) {
+        return `
+          <svg class="${sizeClass} transition-colors duration-150" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+          </svg>
+        `;
+      }
+
+      // =========================================================
+      // 5. RENDER & INTERAKSI FORM
+      // =========================================================
+
+      /** Inisialisasi 5 tombol bintang interaktif */
+      function initStars() {
+        starContainer.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.dataset.value = String(i);
+          btn.setAttribute('role', 'radio');
+          btn.setAttribute('aria-checked', 'false');
+          btn.setAttribute('aria-label', `${i} bintang`);
+          btn.className = 'p-1.5 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer select-none transition-transform duration-150 active:scale-90 text-zinc-200';
+          btn.innerHTML = createStarSVG('w-9 h-9 sm:w-10 sm:h-10');
+
+          // Klik / Tap bintang
+          btn.addEventListener('click', function () {
+            selectRating(i, btn);
+          });
+
+          // Efek preview hover khusus perangkat mouse (pointer fine)
+          btn.addEventListener('mouseenter', function () {
+            if (window.matchMedia('(hover: hover)').matches) {
+              state.hoverRating = i;
+              updateStarVisuals();
+            }
+          });
+
+          starContainer.appendChild(btn);
+        }
+
+        starContainer.addEventListener('mouseleave', function () {
+          state.hoverRating = 0;
+          updateStarVisuals();
+        });
+      }
+
+      /** Memilih rating bintang dan memicu animasi bounce */
+      function selectRating(value, clickedButton) {
+        state.rating = value;
+        state.hoverRating = 0;
+
+        // Sembunyikan pesan error jika sebelumnya muncul
+        ratingErrorEl.classList.add('hidden');
+        ratingBox.classList.remove('border-rose-300', 'bg-rose-50/40');
+        ratingBox.classList.add('border-zinc-200/70', 'bg-zinc-50/90');
+
+        updateStarVisuals();
+
+        // Terapkan animasi bounce pada bintang yang baru diklik
+        if (clickedButton) {
+          clickedButton.classList.remove('animate-star-pop');
+          void clickedButton.offsetWidth; // trigger reflow agar animasi bisa berulang
+          clickedButton.classList.add('animate-star-pop');
+        }
+      }
+
+      /** Memperbarui warna bintang & teks reaksi */
+      function updateStarVisuals() {
+        const activeValue = state.hoverRating || state.rating;
+        const starButtons = starContainer.querySelectorAll('button');
+
+        starButtons.forEach(function (btn) {
+          const val = Number(btn.dataset.value);
+          const isFilled = val <= activeValue;
+          btn.classList.toggle('text-amber-500', isFilled);
+          btn.classList.toggle('text-zinc-200', !isFilled);
+          btn.setAttribute('aria-checked', String(val === state.rating));
+        });
+
+        if (state.rating > 0) {
+          ratingReactionEl.textContent = RATING_CONFIG[state.rating].reaction;
+          ratingReactionEl.classList.remove('text-zinc-400');
+          ratingReactionEl.classList.add('text-zinc-700');
+        } else {
+          ratingReactionEl.textContent = 'Tap bintang untuk menilai hari ini';
+          ratingReactionEl.classList.remove('text-zinc-700');
+          ratingReactionEl.classList.add('text-zinc-400');
+        }
+      }
+
+      /** Inisialisasi chip tag highlight multi-select */
+      function initTags() {
+        tagsContainer.innerHTML = '';
+        HIGHLIGHT_TAGS.forEach(function (tagText) {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.textContent = tagText;
+          chip.setAttribute('aria-pressed', 'false');
+          chip.className = 'px-3 py-2 rounded-full text-xs sm:text-[13px] font-medium border transition-all duration-150 cursor-pointer select-none active:scale-95 bg-white text-zinc-600 border-zinc-200/90 hover:border-zinc-300';
+
+          chip.addEventListener('click', function () {
+            if (state.selectedTags.has(tagText)) {
+              state.selectedTags.delete(tagText);
+              chip.setAttribute('aria-pressed', 'false');
+              chip.classList.remove('bg-zinc-900', 'text-white', 'border-zinc-900', 'shadow-sm');
+              chip.classList.add('bg-white', 'text-zinc-600', 'border-zinc-200/90', 'hover:border-zinc-300');
+            } else {
+              state.selectedTags.add(tagText);
+              chip.setAttribute('aria-pressed', 'true');
+              chip.classList.remove('bg-white', 'text-zinc-600', 'border-zinc-200/90', 'hover:border-zinc-300');
+              chip.classList.add('bg-zinc-900', 'text-white', 'border-zinc-900', 'shadow-sm');
+            }
+          });
+
+          tagsContainer.appendChild(chip);
+        });
+      }
+
+      // Update penghitung karakter catatan opsional
+      noteInput.addEventListener('input', function () {
+        state.note = noteInput.value;
+        noteCounter.textContent = `${noteInput.value.length}/120`;
+      });
+
+      // =========================================================
+      // 6. SUBMIT & RENDER HALAMAN HASIL
+      // =========================================================
+
+      submitBtn.addEventListener('click', function () {
+        // Validasi: pastikan bintang sudah dipilih
+        if (state.rating === 0) {
+          ratingErrorEl.classList.remove('hidden');
+          ratingBox.classList.remove('border-zinc-200/70', 'bg-zinc-50/90', 'animate-shake');
+          ratingBox.classList.add('border-rose-300', 'bg-rose-50/40');
+          void ratingBox.offsetWidth;
+          ratingBox.classList.add('animate-shake');
+          return;
+        }
+
+        state.note = noteInput.value.trim();
+        state.submittedTimestamp = new Date();
+        renderResultView();
+      });
+
+      /** Menampilkan kartu hasil ulasan yang siap di-screenshot */
+      function renderResultView() {
+        const config = RATING_CONFIG[state.rating];
+
+        // Tanggal & jam
+        resultDatetimeEl.textContent = formatIndonesianDateTime(state.submittedTimestamp);
+
+        // Render 5 bintang hasil
+        resultStarsEl.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+          const span = document.createElement('span');
+          span.className = i <= state.rating ? 'text-amber-500' : 'text-zinc-200';
+          span.innerHTML = createStarSVG('w-7 h-7 sm:w-8 sm:h-8');
+          resultStarsEl.appendChild(span);
+        }
+
+        // Skor & Status Badge
+        resultScoreEl.textContent = `${state.rating}.0`;
+        resultBadgeEl.textContent = config.badge;
+        resultBadgeEl.className = `inline-block px-3.5 py-1 rounded-full text-[11px] font-extrabold tracking-wider uppercase border ${config.badgeClass}`;
+
+        // Highlight terpilih
+        const selectedArray = Array.from(state.selectedTags);
+        if (selectedArray.length > 0) {
+          resultTagsWrapper.classList.remove('hidden');
+          resultTagsEl.innerHTML = '';
+          selectedArray.forEach(function (tag) {
+            const pill = document.createElement('span');
+            pill.className = 'inline-block px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-700 text-[11px] sm:text-xs font-medium';
+            pill.textContent = tag;
+            resultTagsEl.appendChild(pill);
+          });
+        } else {
+          resultTagsWrapper.classList.add('hidden');
+        }
+
+        // Catatan tambahan
+        if (state.note.length > 0) {
+          resultNoteWrapper.classList.remove('hidden');
+          resultNoteEl.textContent = `"${state.note}"`;
+        } else {
+          resultNoteWrapper.classList.add('hidden');
+        }
+
+        // Komentar Sistem
+        resultSystemCommentEl.textContent = config.systemComment;
+
+        // Transisi dari form ke halaman hasil
+        formView.classList.add('hidden');
+        resultView.classList.remove('hidden', 'animate-view-in');
+        void resultView.offsetWidth;
+        resultView.classList.add('animate-view-in');
+
+        // Scroll ke atas agar kartu langsung pas di layar HP
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Efek konfeti lembut jika rating 4 atau 5 bintang
+        if (state.rating >= 4) {
+          launchConfetti();
+        }
+      }
+
+      // Tombol kembali untuk mengubah ulasan
+      editBtn.addEventListener('click', function () {
+        resultView.classList.add('hidden');
+        formView.classList.remove('hidden', 'animate-view-in');
+        void formView.offsetWidth;
+        formView.classList.add('animate-view-in');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // =========================================================
+      // 7. SALIN TEKS KE CLIPBOARD (KOMPATIBEL BROWSER IG & IFRAME)
+      // =========================================================
+
+      let toastTimer = null;
+
+      function showToast(message) {
+        toastEl.textContent = message;
+        toastEl.classList.remove('opacity-0', 'translate-y-2');
+        toastEl.classList.add('opacity-100', 'translate-y-0');
+
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toastEl.classList.remove('opacity-100', 'translate-y-0');
+          toastEl.classList.add('opacity-0', 'translate-y-2');
+        }, 2400);
+      }
+
+      /** Menyusun ringkasan teks rapi untuk ditempel di DM IG */
+      function buildSummaryText() {
+        const config = RATING_CONFIG[state.rating];
+        const starsEmoji = '⭐'.repeat(state.rating);
+        const dateStr = formatIndonesianDateTime(state.submittedTimestamp || new Date());
+        const lines = [
+          `📋 ULASAN HARI INI (${dateStr})`,
+          `${starsEmoji} (${state.rating}.0/5.0) — ${config.badge}`,
+        ];
+
+        const tags = Array.from(state.selectedTags);
+        if (tags.length > 0) {
+          lines.push(`Highlight: ${tags.join(', ')}`);
+        }
+
+        if (state.note.length > 0) {
+          lines.push(`Catatan: "${state.note}"`);
+        }
+
+        return lines.join('\n');
+      }
+
+      /** Menyalin teks menggunakan execCommand agar stabil di webview IG & iFrame */
+      copyBtn.addEventListener('click', function () {
+        const textToCopy = buildSummaryText();
+
+        try {
+          const tempTextArea = document.createElement('textarea');
+          tempTextArea.value = textToCopy;
+          tempTextArea.setAttribute('readonly', '');
+          tempTextArea.style.position = 'fixed';
+          tempTextArea.style.top = '-9999px';
+          tempTextArea.style.left = '-9999px';
+          document.body.appendChild(tempTextArea);
+
+          tempTextArea.focus();
+          tempTextArea.select();
+          tempTextArea.setSelectionRange(0, tempTextArea.value.length);
+
+          const copied = document.execCommand('copy');
+          document.body.removeChild(tempTextArea);
+
+          if (copied) {
+            showToast('Tersalin! Tinggal paste di DM');
+          } else {
+            showToast('Gagal menyalin, screenshot kartu aja ya!');
+          }
+        } catch (err) {
+          showToast('Gagal menyalin, screenshot kartu aja ya!');
+        }
+      });
+
+      // =========================================================
+      // 8. EFEK KONFETI RINGAN BERBASIS CANVAS (TANPA LIBRARY)
+      // =========================================================
+
+      const confettiCanvas = document.getElementById('confetti-canvas');
+      const ctx = confettiCanvas.getContext('2d');
+      let confettiParticles = [];
+      let confettiAnimId = null;
+
+      /** Menyesuaikan resolusi canvas secara responsif */
+      function resizeConfettiCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        confettiCanvas.width = window.innerWidth * dpr;
+        confettiCanvas.height = window.innerHeight * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      window.addEventListener('resize', resizeConfettiCanvas);
+
+      /** Memicu ledakan konfeti estetik dari bagian atas layar */
+      function launchConfetti() {
+        try {
+          resizeConfettiCanvas();
+          if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+
+          const colors = ['#F59E0B', '#FBBF24', '#10B981', '#38BDF8', '#FB7185', '#18181B'];
+          const width = window.innerWidth;
+          confettiParticles = [];
+
+          // 55 partikel agar tetap super ringan dan mulus di HP
+          for (let i = 0; i < 55; i++) {
+            confettiParticles.push({
+              x: width * (0.15 + Math.random() * 0.7),
+              y: -15 - Math.random() * 80,
+              w: 6 + Math.random() * 5,
+              h: 4 + Math.random() * 4,
+              vx: (Math.random() - 0.5) * 3.5,
+              vy: 2.4 + Math.random() * 3.4,
+              angle: Math.random() * Math.PI * 2,
+              spin: (Math.random() - 0.5) * 0.18,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              opacity: 1,
+            });
+          }
+
+          animateConfetti();
+        } catch (err) {
+          // Abaikan jika canvas gagal agar tidak mengganggu UX utama
+        }
+      }
+
+      function animateConfetti() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        ctx.clearRect(0, 0, width, height);
+
+        let activeCount = 0;
+
+        for (let i = 0; i < confettiParticles.length; i++) {
+          const p = confettiParticles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.045; // gravitasi halus
+          p.vx *= 0.99;
+          p.angle += p.spin;
+
+          if (p.y > height * 0.72) {
+            p.opacity -= 0.025;
+          }
+
+          if (p.opacity > 0 && p.y < height + 20) {
+            activeCount++;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, p.opacity);
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.angle);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.roundRect(-p.w / 2, -p.h / 2, p.w, p.h, 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        if (activeCount > 0) {
+          confettiAnimId = requestAnimationFrame(animateConfetti);
+        } else {
+          ctx.clearRect(0, 0, width, height);
+          confettiAnimId = null;
+        }
+      }
+
+      // =========================================================
+      // 9. INISIALISASI SAAT HALAMAN SIAP
+      // =========================================================
+      function init() {
+        formDateEl.textContent = formatIndonesianDate(new Date());
+        initStars();
+        initTags();
+        resizeConfettiCanvas();
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
